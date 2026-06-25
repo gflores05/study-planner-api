@@ -1,0 +1,19 @@
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+
+from src.domain.assessment.value_objects.assessment_id import AssessmentId
+from src.shared.domain_event import DomainEvent
+
+
+@dataclass(frozen=True, kw_only=True)
+class AssessmentCompleted(DomainEvent):
+  assessment_id: AssessmentId
+  completed_on: datetime = field(default_factory=lambda: datetime.now(UTC))
+  event_name: str = field(default="AssessmentCompleted")
+
+
+@dataclass(frozen=True, kw_only=True)
+class AssessmentStarted(DomainEvent):
+  assessment_id: AssessmentId
+  started_on: datetime = field(default_factory=lambda: datetime.now(UTC))
+  event_name: str = field(default="AssessmentStarted")
