@@ -1,0 +1,15 @@
+[tool.mypy]
+python_version = "3.14"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+plugins = ["returns.contrib.mypy.returns_plugin"]
+
+[tool.ruff]
+# Sets the indentation style for both linting rules and the formatter
+indent-width = 2
+
+
+[tool.ruff.format]
+# Enforces spaces instead of tabs
+indent-style = "space"
