@@ -3,11 +3,12 @@ from datetime import datetime
 from enum import Enum
 from typing import Literal
 
-from src.domain.study_plan.domain_events import StudyPlanTopicsAdded
+from src.domain.study_plan.domain_events import StudyPlanRequested, StudyPlanTopicsAdded
 from src.domain.study_plan.value_objects.study_plan_id import StudyPlanId
 from src.domain.study_plan.value_objects.subject import Subject
 from src.domain.topic.topic import Topic
 from src.shared.aggregate_root import AggregateRoot
+from src.shared.result import Result, Unit
 
 StudyPlanLevel = Literal[
   "Elementary School", "High School", "Preparatory", "University", "Postgraduate"
@@ -16,7 +17,8 @@ StudyPlanLevel = Literal[
 
 class StudyPlanStatus(Enum):
   PENDING = "PENDING"
-  READY = "IN_PROGRESS"
+  GENERATING = "GENERATING"
+  IN_PROGRESS = "IN_PROGRESS"
   COMPLETED = "COMPLETED"
 
 
@@ -46,6 +48,18 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
     status: StudyPlanStatus,
   ) -> "StudyPlan":
     return StudyPlan(id=id, subject=subject, level=level, topics=topics, status=status)
+
+  def request(self, requested_on: datetime) -> Result[Unit]:
+    if self.status != StudyPlanStatus.PENDING:
+      return Result.fail("StudyPlanNotPending")
+
+    self.status = StudyPlanStatus.GENERATING
+
+    self.add_domain_event(
+      StudyPlanRequested(study_plan_id=self.id, requested_on=requested_on)
+    )
+
+    return Result.ok(Unit)
 
   def add_topics(self, topics: list[Topic], generated_on: datetime):
     self.topics = topics
