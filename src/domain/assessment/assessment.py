@@ -89,7 +89,7 @@ class Assessment(AggregateRoot[AssessmentId]):
     return Result.ok(Unit)
 
   def answer_question(
-    self, question_id: QuestionId, selected_answer: AnswerOption
+    self, question_id: QuestionId, selected_answer: AnswerOption, answer_on: datetime
   ) -> Result[Unit]:
     if self.status != AssessmentStatus.IN_PROGRESS:
       return Result.fail("AssessmentNotInProgress")
@@ -101,6 +101,6 @@ class Assessment(AggregateRoot[AssessmentId]):
     if question is None:
       return Result.fail("QuestionNotFound")
 
-    question.select_answer(selected_answer=selected_answer)
+    question.select_answer(selected_answer=selected_answer, answer_on=answer_on)
 
     return Result.ok(Unit)

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 
 from src.domain.answer.answer import Answer
 from src.domain.answer.value_objects.answer_option import AnswerOption
@@ -40,8 +41,11 @@ class Question(AggregateRoot[QuestionId]):
   def is_correct(self) -> bool:
     return self.selected_answer.is_some and self.selected_answer.get() == self.answer
 
-  def select_answer(self, selected_answer: AnswerOption):
+  def select_answer(self, selected_answer: AnswerOption, answer_on: datetime):
     self.selected_answer = Option.some(selected_answer)
-    self.domain_events.append(
-      AnswerSelected(question_id=self.id, selected_answer=selected_answer)
+    self.modified_on = answer_on
+    self.add_domain_event(
+      AnswerSelected(
+        question_id=self.id, selected_answer=selected_answer, answer_on=answer_on
+      )
     )
