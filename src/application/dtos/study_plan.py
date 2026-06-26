@@ -9,14 +9,19 @@ StudyPlanLevelDto = Literal[
 
 
 @dataclass
-class GenerateStudyPlanRequestDTO:
+class RequestStudyPlanDTO:
   subject: str
   level: StudyPlanLevelDto
 
 
 @dataclass
-class GenerateStudyPlanResponseDTO:
+class StudyPlanResponseDTO:
   study_plan_id: str
+
+
+@dataclass
+class AddStudyPlanTopics:
+  topics: list[TopicDTO]
 
 
 @dataclass
