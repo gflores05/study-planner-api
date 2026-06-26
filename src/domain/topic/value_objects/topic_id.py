@@ -19,3 +19,6 @@ class TopicId:
   @staticmethod
   def create() -> "TopicId":
     return TopicId(value=str(uuid4()))
+
+  def __str__(self) -> str:
+    return self.value

@@ -19,3 +19,6 @@ class SubTopicId:
   @staticmethod
   def create() -> "SubTopicId":
     return SubTopicId(value=str(uuid4()))
+
+  def __str__(self) -> str:
+    return self.value

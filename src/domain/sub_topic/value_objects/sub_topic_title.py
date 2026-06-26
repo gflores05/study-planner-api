@@ -13,3 +13,6 @@ class SubTopicTitle:
       return Result.fail("The sub topic title cannot be empty")
 
     return Result.ok(SubTopicTitle(value=value))
+
+  def __str__(self) -> str:
+    return self.value

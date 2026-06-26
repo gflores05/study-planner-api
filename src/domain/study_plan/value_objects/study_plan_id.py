@@ -19,3 +19,6 @@ class StudyPlanId:
   @staticmethod
   def create() -> "StudyPlanId":
     return StudyPlanId(value=str(uuid4()))
+
+  def __str__(self) -> str:
+    return self.value

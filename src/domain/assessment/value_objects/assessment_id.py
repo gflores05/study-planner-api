@@ -19,3 +19,6 @@ class AssessmentId:
   @staticmethod
   def create() -> "AssessmentId":
     return AssessmentId(value=str(uuid4()))
+
+  def __str__(self) -> str:
+    return self.value

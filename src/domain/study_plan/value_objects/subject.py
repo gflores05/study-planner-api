@@ -13,3 +13,6 @@ class Subject:
       return Result.fail("The subject cannot be empty")
 
     return Result.ok(Subject(value=value))
+
+  def __str__(self) -> str:
+    return self.value

@@ -13,3 +13,6 @@ class TopicTitle:
       return Result.fail("The topic title cannot be empty")
 
     return Result.ok(TopicTitle(value=value))
+
+  def __str__(self) -> str:
+    return self.value

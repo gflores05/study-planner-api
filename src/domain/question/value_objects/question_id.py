@@ -19,3 +19,6 @@ class QuestionId:
   @staticmethod
   def create() -> "QuestionId":
     return QuestionId(value=str(uuid4()))
+
+  def __str__(self) -> str:
+    return self.value

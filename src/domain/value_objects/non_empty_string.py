@@ -13,3 +13,6 @@ class NonEmptyString:
       return Result.fail("The value cannot be empty")
 
     return Result.ok(NonEmptyString(value=value))
+
+  def __str__(self) -> str:
+    return self.value
