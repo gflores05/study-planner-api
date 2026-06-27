@@ -21,6 +21,7 @@ class StudyPlanResponseDTO:
 
 @dataclass
 class AddStudyPlanTopics:
+  study_plan_id: str
   topics: list[TopicDTO]
 
 

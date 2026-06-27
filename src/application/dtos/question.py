@@ -10,3 +10,4 @@ class QuestionDTO:
   options: list[AnswerDTO]
   answer: str
   selected_answer: str | None
+  assessment_id: str

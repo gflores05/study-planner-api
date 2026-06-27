@@ -18,6 +18,7 @@ class AssessmentDTO:
   questions: list[QuestionDTO]
   started_on: str | None
   completed_on: str | None
+  topic_id: str
 
 
 @dataclass
