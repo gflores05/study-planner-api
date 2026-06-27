@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from shared.result import Result
+from src.shared.validation_error import ValidationError
 
 
 @dataclass(frozen=True)
@@ -8,9 +9,9 @@ class AnswerOption:
   value: str
 
   @staticmethod
-  def create(value: str) -> Result["AnswerOption"]:
+  def parse(value: str) -> "Result[AnswerOption, ValidationError]":
     if value not in {"a", "b", "c", "d"}:
-      return Result.fail("The answer option should be a letter from a to d")
+      return Result.fail(ValidationError(message="InvalidAnswerOption", value=value))
 
     return Result.ok(AnswerOption(value=value))
 

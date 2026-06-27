@@ -10,6 +10,11 @@ from src.domain.topic.topic import Topic
 from src.shared.aggregate_root import AggregateRoot
 from src.shared.result import Result, Unit
 
+
+class StudyPlanError(Exception):
+  pass
+
+
 StudyPlanLevel = Literal[
   "Elementary School", "High School", "Preparatory", "University", "Postgraduate"
 ]
@@ -49,9 +54,9 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
   ) -> "StudyPlan":
     return StudyPlan(id=id, subject=subject, level=level, topics=topics, status=status)
 
-  def request(self, requested_on: datetime) -> Result[Unit]:
+  def request(self, requested_on: datetime) -> Result[Unit, StudyPlanError]:
     if self.status != StudyPlanStatus.PENDING:
-      return Result.fail("StudyPlanNotPending")
+      return Result.fail(StudyPlanError("StudyPlanNotPending"))
 
     self.status = StudyPlanStatus.GENERATING
 

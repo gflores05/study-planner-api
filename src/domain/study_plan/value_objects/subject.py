@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from shared.result import Result
+from src.shared.validation_error import ValidationError
 
 
 @dataclass(frozen=True)
@@ -8,9 +9,9 @@ class Subject:
   value: str
 
   @staticmethod
-  def create(value: str) -> Result["Subject"]:
+  def create(value: str) -> Result["Subject", ValidationError]:
     if len(value) == 0:
-      return Result.fail("The subject cannot be empty")
+      return Result.fail(ValidationError("EmptyValue", value=value))
 
     return Result.ok(Subject(value=value))
 

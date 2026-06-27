@@ -3,6 +3,7 @@ from datetime import datetime
 
 from src.domain.answer.answer import Answer
 from src.domain.answer.value_objects.answer_option import AnswerOption
+from src.domain.assessment.value_objects.assessment_id import AssessmentId
 from src.domain.question.domain_events import AnswerSelected
 from src.domain.question.value_objects.question_id import QuestionId
 from src.domain.question.value_objects.question_text import QuestionText
@@ -16,10 +17,14 @@ class Question(AggregateRoot[QuestionId]):
   options: list[Answer]
   answer: AnswerOption
   selected_answer: Option[AnswerOption]
+  assessment_id: AssessmentId
 
   @staticmethod
   def create(
-    text: QuestionText, options: list[Answer], answer: AnswerOption
+    text: QuestionText,
+    options: list[Answer],
+    answer: AnswerOption,
+    assessment_id: AssessmentId,
   ) -> "Question":
     return Question(
       id=QuestionId.create(),
@@ -27,14 +32,24 @@ class Question(AggregateRoot[QuestionId]):
       options=options,
       answer=answer,
       selected_answer=Option.nothing(),
+      assessment_id=assessment_id,
     )
 
   @staticmethod
   def reconstitute(
-    id: QuestionId, text: QuestionText, options: list[Answer], answer: AnswerOption
+    id: QuestionId,
+    text: QuestionText,
+    options: list[Answer],
+    answer: AnswerOption,
+    assessment_id: AssessmentId,
   ) -> "Question":
     return Question(
-      id=id, text=text, options=options, answer=answer, selected_answer=Option.nothing()
+      id=id,
+      text=text,
+      options=options,
+      answer=answer,
+      selected_answer=Option.nothing(),
+      assessment_id=assessment_id,
     )
 
   @property

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from shared.result import Result
+from src.shared.validation_error import ValidationError
 
 
 @dataclass(frozen=True)
@@ -8,8 +9,8 @@ class AssessmentScore:
   value: int
 
   @staticmethod
-  def create(value: int) -> Result["AssessmentScore"]:
+  def create(value: int) -> "Result[AssessmentScore, ValidationError]":
     if value < 0 or value > 10:
-      return Result.fail("The score should be between 0 and 10 points")
+      return Result.fail(ValidationError("ScoreOutOfRange", value=value))
 
     return Result.ok(AssessmentScore(value=value))

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from shared.result import Result
+from src.shared.validation_error import ValidationError
 
 
 @dataclass(frozen=True)
@@ -8,9 +9,9 @@ class SubTopicTitle:
   value: str
 
   @staticmethod
-  def create(value: str) -> Result["SubTopicTitle"]:
+  def parse(value: str) -> Result["SubTopicTitle", ValidationError]:
     if len(value) == 0:
-      return Result.fail("The sub topic title cannot be empty")
+      return Result.fail(ValidationError("EmptyTitle", value=value))
 
     return Result.ok(SubTopicTitle(value=value))
 

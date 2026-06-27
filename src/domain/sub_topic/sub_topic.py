@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from src.domain.assessment.assessment import Assessment
 from src.domain.sub_topic.value_objects.sub_topic_id import SubTopicId
 from src.domain.sub_topic.value_objects.sub_topic_title import SubTopicTitle
+from src.domain.topic.value_objects.topic_id import TopicId
 from src.domain.value_objects.non_empty_string import NonEmptyString
 from src.shared.aggregate_root import AggregateRoot
 
@@ -11,19 +11,17 @@ from src.shared.aggregate_root import AggregateRoot
 class SubTopic(AggregateRoot[SubTopicId]):
   title: SubTopicTitle
   study_material: list[NonEmptyString]
-  assessment: Assessment
+  topic_id: TopicId
 
   @staticmethod
   def create(
-    title: SubTopicTitle,
-    study_material: list[NonEmptyString],
-    assessment: Assessment,
+    title: SubTopicTitle, study_material: list[NonEmptyString], topic_id: TopicId
   ) -> "SubTopic":
     return SubTopic(
       id=SubTopicId.create(),
       title=title,
       study_material=study_material,
-      assessment=assessment,
+      topic_id=topic_id,
     )
 
   @staticmethod
@@ -31,8 +29,8 @@ class SubTopic(AggregateRoot[SubTopicId]):
     id: SubTopicId,
     title: SubTopicTitle,
     study_material: list[NonEmptyString],
-    assessment: Assessment,
+    topic_id: TopicId,
   ) -> "SubTopic":
     return SubTopic(
-      id=id, title=title, study_material=study_material, assessment=assessment
+      id=id, title=title, study_material=study_material, topic_id=topic_id
     )
