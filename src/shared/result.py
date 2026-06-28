@@ -1,10 +1,13 @@
-from typing import Generic, TypeVar
-
-T = TypeVar("T")
+from dataclasses import dataclass
 
 
-class Result(Generic[T]):
-  def __init__(self, is_success: bool, value: T = None, error: str | None = None):
+@dataclass
+class Unit:
+  pass
+
+
+class Result[T, E]:
+  def __init__(self, is_success: bool, value: T = None, error: E | None = None):
     self._is_success = is_success
     self._value = value
     self._error = error
@@ -24,16 +27,16 @@ class Result(Generic[T]):
     return self._value
 
   @property
-  def error(self) -> str:
+  def error(self) -> E:
     if self._error is None:
       raise Exception("Cannot get error of a success result")
 
     return self._error
 
   @staticmethod
-  def ok(value: T = None) -> "Result[T]":
+  def ok(value: T = None) -> "Result":
     return Result(is_success=True, value=value)
 
   @staticmethod
-  def fail(error: str) -> "Result":
+  def fail(error: E) -> "Result":
     return Result(is_success=False, error=error)

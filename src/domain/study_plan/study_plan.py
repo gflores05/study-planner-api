@@ -71,5 +71,7 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
     self.modified_on = generated_on
 
     self.add_domain_event(
-      StudyPlanTopicsAdded(study_plan_id=self.id, generated_on=generated_on)
+      StudyPlanTopicsAdded(
+        study_plan_id=self.id, generated_on=generated_on, topics=topics
+      )
     )

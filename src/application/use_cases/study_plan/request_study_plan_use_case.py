@@ -6,12 +6,13 @@ from src.application.ports.outbound.messaging.event_publisher import EventPublis
 from src.application.ports.outbound.repositories.study_plan_repository import (
   StudyPlanRepository,
 )
+from src.application.use_cases.use_case_event_publisher import UseCaseEventPublisher
 from src.domain.study_plan.study_plan import StudyPlan
 from src.domain.study_plan.value_objects.subject import Subject
 from src.util.date_util import utc_now
 
 
-class RequestStudyPlanUseCase:
+class RequestStudyPlanUseCase(UseCaseEventPublisher):
   def __init__(
     self, study_plan_repository: StudyPlanRepository, event_publisher: EventPublisher
   ):
@@ -28,9 +29,6 @@ class RequestStudyPlanUseCase:
 
     await self.study_plan_repository.save(study_plan=study_plan)
 
-    for event in study_plan.domain_events:
-      await self.event_publisher.publish(event)
-
-    study_plan.clear_domain_events()
+    await self._publish_events(study_plan)
 
     return StudyPlanResponseDTO(study_plan_id=str(study_plan.id))
