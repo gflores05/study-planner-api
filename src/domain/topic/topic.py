@@ -52,12 +52,16 @@ class Topic(AggregateRoot[TopicId]):
     self.modified_on = generated_on
 
     self.add_domain_event(
-      TopicSubTopicsAdded(sub_topics=self.sub_topics, generated_on=generated_on)
+      TopicSubTopicsAdded(
+        topic_id=self.id, sub_topics=self.sub_topics, generated_on=generated_on
+      )
     )
 
   def add_assessment(self, generated_on: datetime):
     self.modified_on = generated_on
 
     self.add_domain_event(
-      TopicAssessmentAdded(assessment=self.assessment, generated_on=generated_on)
+      TopicAssessmentAdded(
+        topic_id=self.id, assessment=self.assessment, generated_on=generated_on
+      )
     )
