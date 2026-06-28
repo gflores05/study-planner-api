@@ -4,6 +4,7 @@ from enum import Enum
 
 from src.domain.answer.value_objects.answer_option import AnswerOption
 from src.domain.assessment.domain_events import (
+  AssessmentAddQuestions,
   AssessmentCompleted,
   AssessmentStarted,
 )
@@ -68,6 +69,15 @@ class Assessment(AggregateRoot[AssessmentId]):
       started_on=started_on,
       completed_on=completed_on,
       topic_id=topic_id,
+    )
+
+  def add_questions(self, generated_on: datetime) -> None:
+    self.modified_on = generated_on
+
+    self.add_domain_event(
+      AssessmentAddQuestions(
+        assessment_id=self.id, questions=self.questions, generated_on=generated_on
+      )
     )
 
   def start(self, started_on: datetime) -> Result[Unit, AssessmentError]:
