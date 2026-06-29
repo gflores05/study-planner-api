@@ -20,3 +20,6 @@ class AnswerId:
   @staticmethod
   def create() -> "AnswerId":
     return AnswerId(value=str(uuid4()))
+
+  def __str__(self) -> str:
+    return self.value

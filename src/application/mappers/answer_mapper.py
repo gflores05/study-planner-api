@@ -23,3 +23,7 @@ def map_answer_dto_to_domain(dto: AnswerDTO) -> Result[Answer, ValidationError]:
       option=option_result.value,
     )
   )
+
+
+def map_answer_domain_to_dto(domain: Answer) -> AnswerDTO:
+  return AnswerDTO(id=str(domain.id), text=str(domain.text), option=str(domain.option))

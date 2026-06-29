@@ -14,3 +14,6 @@ class AssessmentScore:
       return Result.fail(ValidationError("ScoreOutOfRange", value=value))
 
     return Result.ok(AssessmentScore(value=value))
+
+  def __int__(self):
+    return self.value

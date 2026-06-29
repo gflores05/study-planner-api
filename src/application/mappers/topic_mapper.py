@@ -1,6 +1,12 @@
 from src.application.dtos.topic import TopicDTO
-from src.application.mappers.assessment_mapper import map_assessment_dto_to_domain
-from src.application.mappers.sub_topic_mapper import map_sub_topic_dto_to_domain
+from src.application.mappers.assessment_mapper import (
+  map_assessment_domain_to_dto,
+  map_assessment_dto_to_domain,
+)
+from src.application.mappers.sub_topic_mapper import (
+  map_sub_topic_domain_to_dto,
+  map_sub_topic_dto_to_domain,
+)
 from src.domain.study_plan.value_objects.study_plan_id import StudyPlanId
 from src.domain.topic.topic import Topic
 from src.domain.topic.value_objects.topic_title import TopicTitle
@@ -39,4 +45,14 @@ def map_topic_dto_to_domain(dto: TopicDTO) -> Result[Topic, ValidationError]:
       assessment=assessment_result.value,
       study_plan_id=study_plan_id_result.value,
     )
+  )
+
+
+def map_topic_domain_to_dto(domain: Topic) -> TopicDTO:
+  return TopicDTO(
+    id=str(domain.id),
+    title=str(domain.title),
+    sub_topics=[map_sub_topic_domain_to_dto(st) for st in domain.sub_topics],
+    assessment=map_assessment_domain_to_dto(domain.assessment),
+    study_plan_id=str(domain.study_plan_id),
   )

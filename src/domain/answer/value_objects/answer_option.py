@@ -17,3 +17,6 @@ class AnswerOption:
 
   def __eq__(self, other: "AnswerOption") -> bool:
     return self.value == other.value
+
+  def __str__(self) -> str:
+    return self.value

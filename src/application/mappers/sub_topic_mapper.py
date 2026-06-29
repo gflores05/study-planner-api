@@ -33,3 +33,12 @@ def map_sub_topic_dto_to_domain(dto: SubTopicDTO) -> Result[SubTopic, Validation
       topic_id=topic_id_result.value,
     )
   )
+
+
+def map_sub_topic_domain_to_dto(domain: SubTopic) -> SubTopicDTO:
+  return SubTopicDTO(
+    id=str(domain.id),
+    title=str(domain.title),
+    study_material=[str(sm) for sm in domain.study_material],
+    topic_id=str(domain.topic_id),
+  )
