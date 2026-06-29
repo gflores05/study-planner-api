@@ -1,0 +1,6 @@
+from typing_extensions import Protocol
+
+
+class PromptProvider(Protocol):
+  async def get_system_prompt(self, params: dict) -> str: ...
+  async def get_prompt(self, params: dict) -> str: ...

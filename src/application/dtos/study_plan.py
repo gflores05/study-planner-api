@@ -20,8 +20,12 @@ class StudyPlanResponseDTO:
 
 
 @dataclass
-class AddStudyPlanTopics:
+class GeneratStudyPlanDTO:
   study_plan_id: str
+
+
+@dataclass
+class GeneratedStudyPlanDTO:
   topics: list[TopicDTO]
 
 

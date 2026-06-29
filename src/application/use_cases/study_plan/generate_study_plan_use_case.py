@@ -1,8 +1,13 @@
+import json
+
 from src.application.dtos.study_plan import (
-  AddStudyPlanTopics,
+  GeneratedStudyPlanDTO,
+  GeneratStudyPlanDTO,
   StudyPlanResponseDTO,
 )
 from src.application.mappers.topic_mapper import map_topic_dto_to_domain
+from src.application.ports.outbound.ai.ai_agent import AIAgent
+from src.application.ports.outbound.ai.prompt_provider import PromptProvider
 from src.application.ports.outbound.messaging.event_publisher import EventPublisher
 from src.application.ports.outbound.repositories.study_plan_repository import (
   StudyPlanRepository,
@@ -13,24 +18,41 @@ from src.util.date_util import utc_now
 from src.util.result_util import traverse
 
 
-class AddTopicsUseCase(UseCaseEventPublisher):
+class GenerateStudyPlanUseCase(UseCaseEventPublisher):
   def __init__(
     self,
     study_plan_repository: StudyPlanRepository,
     event_publisher: EventPublisher,
+    ai_agent: AIAgent,
+    study_plan_prompt_provider: PromptProvider,
   ):
     self.study_plan_repository = study_plan_repository
     self.event_publisher = event_publisher
+    self.ai_agent = ai_agent
+    self.study_plan_prompt_provider = study_plan_prompt_provider
 
-  async def execute(self, dto: AddStudyPlanTopics) -> StudyPlanResponseDTO:
+  async def execute(self, dto: GeneratStudyPlanDTO) -> StudyPlanResponseDTO:
     study_plan = (
       await self.study_plan_repository.get(
         StudyPlanId.parse(dto.study_plan_id).unwrap_or_raise()
       )
     ).get_or_raise(ValueError("StudyPlanNotFound"))
 
+    system_prompt = await self.study_plan_prompt_provider.get_system_prompt(
+      {"subject": str(study_plan.subject), "level": str(study_plan.level)}
+    )
+    prompt = await self.study_plan_prompt_provider.get_prompt(
+      {"subject": str(study_plan.subject), "level": str(study_plan.level)}
+    )
+
+    response_text = await self.ai_agent.send_content(
+      prompt, system_prompt=system_prompt
+    )
+
+    generated_study_plan = GeneratedStudyPlanDTO(**json.loads(response_text))
+
     topics = traverse(
-      [map_topic_dto_to_domain(t) for t in dto.topics]
+      [map_topic_dto_to_domain(t) for t in generated_study_plan.topics]
     ).unwrap_or_raise()
 
     study_plan.add_topics(topics=topics, generated_on=utc_now())
