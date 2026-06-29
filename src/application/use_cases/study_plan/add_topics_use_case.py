@@ -10,7 +10,7 @@ from src.application.ports.outbound.repositories.study_plan_repository import (
 from src.application.use_cases.use_case_event_publisher import UseCaseEventPublisher
 from src.domain.study_plan.value_objects.study_plan_id import StudyPlanId
 from src.util.date_util import utc_now
-from src.util.result_util import reduce_result
+from src.util.result_util import traverse
 
 
 class AddTopicsUseCase(UseCaseEventPublisher):
@@ -23,21 +23,17 @@ class AddTopicsUseCase(UseCaseEventPublisher):
     self.event_publisher = event_publisher
 
   async def execute(self, dto: AddStudyPlanTopics) -> StudyPlanResponseDTO:
-    study_plan_result = await self.study_plan_repository.get(
-      StudyPlanId(dto.study_plan_id)
-    )
+    study_plan = (
+      await self.study_plan_repository.get(
+        StudyPlanId.parse(dto.study_plan_id).unwrap_or_raise()
+      )
+    ).get_or_raise(ValueError("StudyPlanNotFound"))
 
-    if study_plan_result.is_nothing:
-      raise ValueError("StudyPlanNotFound")
+    topics = traverse(
+      [map_topic_dto_to_domain(t) for t in dto.topics]
+    ).unwrap_or_raise()
 
-    study_plan = study_plan_result.get()
-
-    topics_result = reduce_result([map_topic_dto_to_domain(t) for t in dto.topics])
-
-    if topics_result.is_failure:
-      raise topics_result.error
-
-    study_plan.add_topics(topics=topics_result.value, generated_on=utc_now())
+    study_plan.add_topics(topics=topics, generated_on=utc_now())
 
     await self.study_plan_repository.save(study_plan=study_plan)
 

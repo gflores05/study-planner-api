@@ -22,10 +22,7 @@ class RequestStudyPlanUseCase(UseCaseEventPublisher):
   async def execute(self, dto: RequestStudyPlanDTO) -> StudyPlanResponseDTO:
     study_plan = StudyPlan.create(subject=Subject(dto.subject), level=dto.level)
 
-    result = study_plan.request(utc_now())
-
-    if result.is_failure:
-      raise ValueError(result.error)
+    study_plan.request(utc_now()).unwrap_or_raise()
 
     await self.study_plan_repository.save(study_plan=study_plan)
 

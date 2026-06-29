@@ -16,12 +16,7 @@ class CreateAssessmentUseCase(UseCaseEventPublisher):
     self.event_publisher = event_publisher
 
   async def execute(self, dto: AssessmentDTO) -> None:
-    assessment_result = map_assessment_dto_to_domain(dto)
-
-    if assessment_result.is_failure:
-      raise assessment_result.error
-
-    assessment = assessment_result.value
+    assessment = map_assessment_dto_to_domain(dto).unwrap_or_raise()
 
     assessment.add_questions(generated_on=utc_now())
 

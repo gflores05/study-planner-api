@@ -26,3 +26,8 @@ class AnswerQuestionRequestDTO:
   assessment_id: str
   question_id: str
   selected_answer: str
+
+
+@dataclass
+class StartAssessmentResponseDTO:
+  assessment_id: str

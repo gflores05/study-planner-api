@@ -33,6 +33,15 @@ class Result[T, E]:
 
     return self._error
 
+  def unwrap_or_raise(self, e: Exception | None = None) -> T:
+    if self.is_failure:
+      raise (
+        e or self.error
+        if isinstance(self.error, Exception)
+        else Exception("ResultFailed")
+      )
+    return self.value
+
   @staticmethod
   def ok(value: T = None) -> "Result":
     return Result(is_success=True, value=value)

@@ -7,7 +7,7 @@ from src.application.ports.outbound.repositories.topic_repository import TopicRe
 from src.application.use_cases.use_case_event_publisher import UseCaseEventPublisher
 from src.domain.topic.topic import Topic
 from src.util.date_util import utc_now
-from src.util.result_util import reduce_result
+from src.util.result_util import traverse
 
 
 class BulkCreateTopicUseCase(UseCaseEventPublisher):
@@ -20,13 +20,10 @@ class BulkCreateTopicUseCase(UseCaseEventPublisher):
     self.event_publisher = event_publisher
 
   async def execute(self, dtos: list[TopicDTO]) -> None:
-    topics_result = reduce_result([map_topic_dto_to_domain(dto) for dto in dtos])
-
-    if topics_result.is_failure:
-      raise topics_result.error
+    topics = traverse([map_topic_dto_to_domain(dto) for dto in dtos]).unwrap_or_raise()
 
     async with asyncio.TaskGroup() as tg:
-      for topic in topics_result.value:
+      for topic in topics:
         topic.add_assessment(generated_on=utc_now())
         topic.add_sub_topics(generated_on=utc_now())
         tg.create_task(self._save_topic(topic))

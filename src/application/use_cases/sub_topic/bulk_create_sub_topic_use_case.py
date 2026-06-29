@@ -8,7 +8,7 @@ from src.application.ports.outbound.repositories.sub_topic_respository import (
 )
 from src.application.use_cases.use_case_event_publisher import UseCaseEventPublisher
 from src.domain.sub_topic.sub_topic import SubTopic
-from src.util.result_util import reduce_result
+from src.util.result_util import traverse
 
 
 class BulkCreateSubTopicUseCase(UseCaseEventPublisher):
@@ -19,14 +19,9 @@ class BulkCreateSubTopicUseCase(UseCaseEventPublisher):
     self.sub_topic_repository = sub_topic_repository
 
   async def execute(self, dtos: list[SubTopicDTO]) -> None:
-    sub_topics_result = reduce_result(
+    sub_topics = traverse(
       [map_sub_topic_dto_to_domain(dto) for dto in dtos]
-    )
-
-    if sub_topics_result.is_failure:
-      raise sub_topics_result.error
-
-    sub_topics = sub_topics_result.value
+    ).unwrap_or_raise()
 
     async with asyncio.TaskGroup() as tg:
       for subtopic in sub_topics:

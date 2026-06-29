@@ -13,14 +13,10 @@ class GetStudyPlanUseCase:
     self.study_plan_repository = study_plan_repository
 
   async def execute(self, id: str) -> StudyPlanDTO:
-    study_plan_id_result = StudyPlanId.parse(id)
+    study_plan_id = StudyPlanId.parse(id).unwrap_or_raise()
 
-    if study_plan_id_result.is_failure:
-      raise study_plan_id_result.error
+    study_plan = (await self.study_plan_repository.get(study_plan_id)).get_or_raise(
+      ValueError("StudyPlanNotFound")
+    )
 
-    study_plan_opt = await self.study_plan_repository.get(study_plan_id_result.value)
-
-    if study_plan_opt.is_nothing:
-      raise ValueError("StudyPlanNotFound")
-
-    return map_study_plan_domain_to_dto(study_plan_opt.get())
+    return map_study_plan_domain_to_dto(study_plan)

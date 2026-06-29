@@ -7,7 +7,7 @@ from src.application.ports.outbound.repositories.question_repository import (
   QuestionRepository,
 )
 from src.application.use_cases.use_case_event_publisher import UseCaseEventPublisher
-from src.util.result_util import reduce_result
+from src.util.result_util import traverse
 
 
 class BulkCreateQuestionsUseCase(UseCaseEventPublisher):
@@ -18,12 +18,9 @@ class BulkCreateQuestionsUseCase(UseCaseEventPublisher):
     self.question_repository = question_repository
 
   async def execute(self, dtos: list[QuestionDTO]) -> None:
-    questions_result = reduce_result([map_question_dto_to_domain(dto) for dto in dtos])
-
-    if questions_result.is_failure:
-      raise questions_result.error
-
-    questions = questions_result.value
+    questions = traverse(
+      [map_question_dto_to_domain(dto) for dto in dtos]
+    ).unwrap_or_raise()
 
     async with asyncio.TaskGroup() as tg:
       for question in questions:

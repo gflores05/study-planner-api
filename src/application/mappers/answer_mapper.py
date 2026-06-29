@@ -7,20 +7,10 @@ from src.shared.validation_error import ValidationError
 
 
 def map_answer_dto_to_domain(dto: AnswerDTO) -> Result[Answer, ValidationError]:
-  text_result = NonEmptyString.parse(dto.text)
-
-  if text_result.is_failure:
-    return Result.fail(text_result.error)
-
-  option_result = AnswerOption.parse(dto.option)
-
-  if option_result.is_failure:
-    return Result.fail(option_result.error)
-
   return Result.ok(
     Answer.create(
-      text=text_result.value,
-      option=option_result.value,
+      text=NonEmptyString.parse(dto.text).unwrap_or_raise(),
+      option=AnswerOption.parse(dto.option).unwrap_or_raise(),
     )
   )
 
