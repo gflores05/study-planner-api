@@ -24,7 +24,7 @@ class BulkCreateTopicUseCase(UseCaseEventPublisher):
 
     async with asyncio.TaskGroup() as tg:
       for topic in topics:
-        topic.add_assessment(generated_on=utc_now())
+        topic.set_assessment(generated_on=utc_now())
         topic.add_sub_topics(generated_on=utc_now())
         tg.create_task(self._save_topic(topic))
 

@@ -1,4 +1,7 @@
-from src.application.dtos.assessment import AssessmentDTO, AssessmentStatusDTO
+from src.application.dtos.assessment import (
+  AssessmentDTO,
+  AssessmentStatusDTO,
+)
 from src.application.mappers.question_mapper import (
   map_question_domain_to_dto,
   map_question_dto_to_domain,

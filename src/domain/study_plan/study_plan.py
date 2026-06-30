@@ -3,12 +3,18 @@ from datetime import datetime
 from enum import Enum
 from typing import Literal
 
-from src.domain.study_plan.domain_events import StudyPlanRequested, StudyPlanTopicsAdded
+from src.domain.study_plan.domain_events import StudyPlanGenerated, StudyPlanRequested
 from src.domain.study_plan.value_objects.study_plan_id import StudyPlanId
 from src.domain.study_plan.value_objects.subject import Subject
 from src.domain.topic.topic import Topic
+from src.domain.topic.value_objects.topic_title import TopicTitle
 from src.shared.aggregate_root import AggregateRoot
 from src.shared.result import Result, Unit
+
+
+@dataclass
+class AddTopicParams:
+  title: TopicTitle
 
 
 class StudyPlanError(Exception):
@@ -23,7 +29,6 @@ StudyPlanLevel = Literal[
 class StudyPlanStatus(Enum):
   PENDING = "PENDING"
   GENERATING = "GENERATING"
-  IN_PROGRESS = "IN_PROGRESS"
   COMPLETED = "COMPLETED"
 
 
@@ -66,12 +71,19 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
 
     return Result.ok(Unit)
 
-  def add_topics(self, topics: list[Topic], generated_on: datetime):
-    self.topics = topics
-    self.modified_on = generated_on
+  def add_topic(self, params: AddTopicParams):
+    topic = Topic.create(
+      title=params.title,
+      sub_topics=[],
+      study_plan_id=self.id,
+    )
+    self.topics.append(topic)
 
+    return topic
+
+  def report_plan_generated(self, generated_on: datetime):
+    self.modified_on = generated_on
+    self.status = StudyPlanStatus.COMPLETED
     self.add_domain_event(
-      StudyPlanTopicsAdded(
-        study_plan_id=self.id, generated_on=generated_on, topics=topics
-      )
+      StudyPlanGenerated(study_plan_id=self.id, generated_on=generated_on)
     )

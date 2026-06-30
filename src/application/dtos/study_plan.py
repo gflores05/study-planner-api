@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from src.application.dtos.topic import TopicDTO
+from src.application.dtos.topic import TopicAIDTO, TopicDTO
 
 StudyPlanLevelDto = Literal[
   "Elementary School", "High School", "Preparatory", "University", "Postgraduate"
@@ -26,7 +26,7 @@ class GeneratStudyPlanDTO:
 
 @dataclass
 class GeneratedStudyPlanDTO:
-  topics: list[TopicDTO]
+  ts: list[TopicAIDTO]
 
 
 @dataclass

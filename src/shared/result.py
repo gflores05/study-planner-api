@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from src.shared.option import Option
+
 
 @dataclass
 class Unit:
@@ -41,6 +43,11 @@ class Result[T, E]:
         else Exception("ResultFailed")
       )
     return self.value
+
+  def to_option(self):
+    if self.is_success:
+      return Option.some(self._value)
+    return Option[T].nothing()
 
   @staticmethod
   def ok(value: T = None) -> "Result":

@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 
+from src.domain.answer.answer import Answer
 from src.domain.answer.value_objects.answer_option import AnswerOption
 from src.domain.assessment.domain_events import (
-  AssessmentAddQuestions,
   AssessmentCompleted,
   AssessmentStarted,
 )
@@ -14,10 +14,18 @@ from src.domain.assessment.value_objects.assessment_score import (
 )
 from src.domain.question.question import Question
 from src.domain.question.value_objects.question_id import QuestionId
+from src.domain.question.value_objects.question_text import QuestionText
 from src.domain.topic.value_objects.topic_id import TopicId
 from src.shared.aggregate_root import AggregateRoot
 from src.shared.option import Option
 from src.shared.result import Result, Unit
+
+
+@dataclass
+class AddQuestionParam:
+  text: QuestionText
+  options: list[Answer]
+  answer: AnswerOption
 
 
 class AssessmentError(Exception):
@@ -71,14 +79,16 @@ class Assessment(AggregateRoot[AssessmentId]):
       topic_id=topic_id,
     )
 
-  def add_questions(self, generated_on: datetime) -> None:
-    self.modified_on = generated_on
-
-    self.add_domain_event(
-      AssessmentAddQuestions(
-        assessment_id=self.id, questions=self.questions, generated_on=generated_on
-      )
+  def add_question(self, params: AddQuestionParam) -> Question:
+    question = Question.create(
+      text=params.text,
+      options=params.options,
+      answer=params.answer,
+      assessment_id=self.id,
     )
+    self.questions.append(question)
+
+    return question
 
   def start(self, started_on: datetime) -> Result[Unit, AssessmentError]:
     if self.status != AssessmentStatus.PENDING:
