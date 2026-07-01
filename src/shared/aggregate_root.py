@@ -12,6 +12,7 @@ class AggregateRoot(Generic[T]):
   id: T
   created_on: datetime = field(default_factory=lambda: datetime.now(UTC))
   modified_on: datetime = field(default_factory=lambda: datetime.now(UTC))
+  version: int = field(default=0)
   _domain_events: list[DomainEvent] = field(default_factory=list, repr=False)
 
   def add_domain_event(self, event: DomainEvent) -> None:

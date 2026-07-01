@@ -28,4 +28,4 @@ class RequestStudyPlanUseCase(UseCaseEventPublisher):
 
     await self._publish_events(study_plan)
 
-    return StudyPlanResponseDTO(study_plan_id=str(study_plan.id))
+    return StudyPlanResponseDTO(study_plan_id=str(study_plan.id), topics=[])

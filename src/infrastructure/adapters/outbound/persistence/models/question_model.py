@@ -26,5 +26,5 @@ class QuestionModel(DbModel):
   answer: Mapped[str] = mapped_column(String(1), nullable=False)
   selected_answer: Mapped[str] = mapped_column(String(1), nullable=False)
   assessment_id: Mapped[uuid.UUID] = mapped_column(
-    ForeignKey("assessmen.id"), nullable=False
+    ForeignKey("assessment.id"), nullable=False
   )

@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Uuid, func
+from sqlalchemy import Integer, Uuid, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
 
 
@@ -17,3 +17,7 @@ class DbModel(DeclarativeBase):
   @declared_attr
   def modified_on(self) -> Mapped[datetime]:
     return mapped_column(server_default=func.now(), nullable=False)
+
+  @declared_attr
+  def version(self) -> Mapped[datetime]:
+    return mapped_column(Integer, nullable=False)
