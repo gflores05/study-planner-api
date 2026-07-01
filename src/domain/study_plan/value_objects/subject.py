@@ -9,7 +9,7 @@ class Subject:
   value: str
 
   @staticmethod
-  def create(value: str) -> Result["Subject", ValidationError]:
+  def parse(value: str) -> Result["Subject", ValidationError]:
     if len(value) == 0:
       return Result.fail(ValidationError("EmptyValue", value=value))
 

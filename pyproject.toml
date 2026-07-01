@@ -13,3 +13,7 @@ indent-width = 2
 [tool.ruff.format]
 # Enforces spaces instead of tabs
 indent-style = "space"
+
+[tool.pytest.ini_options]
+pythonpath = [".", "src"]
+asyncio_mode = "auto"

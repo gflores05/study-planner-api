@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from pydantic import BaseModel
+
 
 @dataclass
 class AnswerDTO:
@@ -8,7 +10,6 @@ class AnswerDTO:
   option: str
 
 
-@dataclass
-class AnswerAIDTO:
+class AnswerAIDTO(BaseModel):
   t: str
   o: str

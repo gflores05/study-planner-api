@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from src.application.dtos.question import QuestionDTO
+from src.application.dtos.question import QuestionDTO, QuestionResponseDTO
 
 
 class AssessmentStatusDTO(Enum):
@@ -31,3 +31,9 @@ class AnswerQuestionRequestDTO:
 @dataclass
 class StartAssessmentResponseDTO:
   assessment_id: str
+
+
+@dataclass
+class AssessmentResponseDTO:
+  id: str
+  questions: list[QuestionResponseDTO]

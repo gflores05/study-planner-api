@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from src.application.dtos.topic import TopicAIDTO, TopicDTO
+from pydantic import BaseModel
+
+from src.application.dtos.topic import TopicAIDTO, TopicDTO, TopicResponseDTO
 
 StudyPlanLevelDto = Literal[
   "Elementary School", "High School", "Preparatory", "University", "Postgraduate"
@@ -17,6 +19,7 @@ class RequestStudyPlanDTO:
 @dataclass
 class StudyPlanResponseDTO:
   study_plan_id: str
+  topics: list[TopicResponseDTO]
 
 
 @dataclass
@@ -24,8 +27,7 @@ class GeneratStudyPlanDTO:
   study_plan_id: str
 
 
-@dataclass
-class GeneratedStudyPlanDTO:
+class StudyPlanAIGeneratedDTO(BaseModel):
   ts: list[TopicAIDTO]
 
 

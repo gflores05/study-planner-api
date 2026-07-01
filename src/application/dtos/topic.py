@@ -1,8 +1,14 @@
 from dataclasses import dataclass
 
-from src.application.dtos.assessment import AssessmentDTO
+from pydantic import BaseModel
+
+from src.application.dtos.assessment import AssessmentDTO, AssessmentResponseDTO
 from src.application.dtos.question import QuestionAIDTO
-from src.application.dtos.sub_topic import SubTopicAIDTO, SubTopicDTO
+from src.application.dtos.sub_topic import (
+  SubTopicAIDTO,
+  SubTopicDTO,
+  SubTopicResponseDTO,
+)
 
 
 @dataclass
@@ -14,8 +20,14 @@ class TopicDTO:
   study_plan_id: str
 
 
-@dataclass
-class TopicAIDTO:
+class TopicAIDTO(BaseModel):
   t: str
   st: list[SubTopicAIDTO]
   qs: list[QuestionAIDTO]
+
+
+@dataclass
+class TopicResponseDTO:
+  id: str
+  assessment: AssessmentResponseDTO
+  sub_topics: list[SubTopicResponseDTO]

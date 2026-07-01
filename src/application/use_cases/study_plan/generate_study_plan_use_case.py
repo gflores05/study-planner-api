@@ -1,16 +1,16 @@
 import asyncio
-import json
 from datetime import datetime
 
 from src.application.dtos.answer import AnswerAIDTO
-from src.application.dtos.question import QuestionAIDTO
+from src.application.dtos.assessment import AssessmentResponseDTO
+from src.application.dtos.question import QuestionAIDTO, QuestionResponseDTO
 from src.application.dtos.study_plan import (
-  GeneratedStudyPlanDTO,
   GeneratStudyPlanDTO,
+  StudyPlanAIGeneratedDTO,
   StudyPlanResponseDTO,
 )
-from src.application.dtos.sub_topic import SubTopicAIDTO
-from src.application.dtos.topic import TopicAIDTO
+from src.application.dtos.sub_topic import SubTopicAIDTO, SubTopicResponseDTO
+from src.application.dtos.topic import TopicAIDTO, TopicResponseDTO
 from src.application.ports.outbound.ai.ai_agent import AIAgent
 from src.application.ports.outbound.ai.prompt_provider import PromptProvider
 from src.application.ports.outbound.messaging.event_publisher import EventPublisher
@@ -81,9 +81,11 @@ class GenerateStudyPlanUseCase(UseCaseEventPublisher):
       prompt, system_prompt=system_prompt
     )
 
-    generated_study_plan = GeneratedStudyPlanDTO(**json.loads(response_text))
+    generated_study_plan = StudyPlanAIGeneratedDTO.model_validate_json(response_text)
 
     now = utc_now()
+
+    topics_response: list[TopicResponseDTO] = []
 
     for ai_topic in generated_study_plan.ts:
       params, ai_questions, ai_sub_topics = self._map_topic_ai_to_parameters(ai_topic)
@@ -92,8 +94,20 @@ class GenerateStudyPlanUseCase(UseCaseEventPublisher):
 
       await self.topic_repository.save(topic=topic)
 
-      await self._add_topic_assessment(topic=topic, ai_questions=ai_questions, now=now)
-      await self._add_topic_sub_topics(topic=topic, ai_sub_topics=ai_sub_topics)
+      assessment_response = await self._add_topic_assessment(
+        topic=topic, ai_questions=ai_questions, now=now
+      )
+      sub_topics_response = await self._add_topic_sub_topics(
+        topic=topic, ai_sub_topics=ai_sub_topics
+      )
+
+      topics_response.append(
+        TopicResponseDTO(
+          id=str(topic.id),
+          assessment=assessment_response,
+          sub_topics=sub_topics_response,
+        )
+      )
 
     study_plan.report_plan_generated(generated_on=now)
 
@@ -101,11 +115,13 @@ class GenerateStudyPlanUseCase(UseCaseEventPublisher):
 
     await self._publish_events(study_plan)
 
-    return StudyPlanResponseDTO(study_plan_id=str(study_plan.id))
+    return StudyPlanResponseDTO(
+      study_plan_id=str(study_plan.id), topics=topics_response
+    )
 
   async def _add_topic_assessment(
     self, topic: Topic, ai_questions: list[QuestionAIDTO], now: datetime
-  ):
+  ) -> AssessmentResponseDTO:
     assessment = topic.generate_assessment(now)
 
     await self.assessment_repository.save(assessment=assessment)
@@ -119,9 +135,14 @@ class GenerateStudyPlanUseCase(UseCaseEventPublisher):
       for question in questions:
         tg.create_task(self.question_repository.save(question=question))
 
+    return AssessmentResponseDTO(
+      id=str(assessment.id),
+      questions=[QuestionResponseDTO(id=str(q.id)) for q in questions],
+    )
+
   async def _add_topic_sub_topics(
     self, topic: Topic, ai_sub_topics: list[SubTopicAIDTO]
-  ):
+  ) -> list[SubTopicResponseDTO]:
     sub_topics = [
       topic.add_sub_topic(self._map_sub_topic_ai_to_parameters(ai_sub_topic))
       for ai_sub_topic in ai_sub_topics
@@ -130,6 +151,8 @@ class GenerateStudyPlanUseCase(UseCaseEventPublisher):
     async with asyncio.TaskGroup() as tg:
       for sub_topic in sub_topics:
         tg.create_task(self.sub_topic_repository.save(sub_topic=sub_topic))
+
+    return [SubTopicResponseDTO(id=str(st.id)) for st in sub_topics]
 
   def _map_topic_ai_to_parameters(self, topicAI: TopicAIDTO):
     params = AddTopicParams(title=TopicTitle.parse(topicAI.t).unwrap_or_raise())

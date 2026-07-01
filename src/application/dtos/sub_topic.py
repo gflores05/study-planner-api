@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from pydantic import BaseModel
+
 
 @dataclass
 class SubTopicDTO:
@@ -9,7 +11,11 @@ class SubTopicDTO:
   topic_id: str
 
 
-@dataclass
-class SubTopicAIDTO:
+class SubTopicAIDTO(BaseModel):
   t: str
   sm: list[str]
+
+
+@dataclass
+class SubTopicResponseDTO:
+  id: str

@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from pydantic import BaseModel
+
 from src.application.dtos.answer import AnswerAIDTO, AnswerDTO
 
 
@@ -13,8 +15,12 @@ class QuestionDTO:
   assessment_id: str
 
 
-@dataclass
-class QuestionAIDTO:
+class QuestionAIDTO(BaseModel):
   t: str
   os: list[AnswerAIDTO]
   a: str
+
+
+@dataclass
+class QuestionResponseDTO:
+  id: str
