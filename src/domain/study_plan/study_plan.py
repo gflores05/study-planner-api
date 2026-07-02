@@ -30,6 +30,7 @@ class StudyPlanStatus(Enum):
   PENDING = "PENDING"
   GENERATING = "GENERATING"
   COMPLETED = "COMPLETED"
+  UNKNOWN = "UNKNOWN"
 
 
 @dataclass(kw_only=True)
@@ -52,12 +53,24 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
   @staticmethod
   def reconstitute(
     id: StudyPlanId,
+    created_on: datetime,
+    modified_on: datetime,
+    version: int,
     subject: Subject,
     level: StudyPlanLevel,
     topics: list[Topic],
     status: StudyPlanStatus,
   ) -> "StudyPlan":
-    return StudyPlan(id=id, subject=subject, level=level, topics=topics, status=status)
+    return StudyPlan(
+      id=id,
+      created_on=created_on,
+      modified_on=modified_on,
+      version=version,
+      subject=subject,
+      level=level,
+      topics=topics,
+      status=status,
+    )
 
   def request(self, requested_on: datetime) -> Result[Unit, StudyPlanError]:
     if self.status != StudyPlanStatus.PENDING:

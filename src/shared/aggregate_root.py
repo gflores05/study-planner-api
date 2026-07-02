@@ -24,3 +24,6 @@ class AggregateRoot(Generic[T]):
 
   def clear_domain_events(self) -> None:
     self._domain_events.clear()
+
+  def increment_version(self):
+    self.version = self.version + 1

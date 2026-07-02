@@ -12,6 +12,7 @@ from src.infrastructure.adapters.outbound.persistence.util.jsonb_dataclass impor
 
 @dataclass
 class AnswerModel:
+  id: str
   text: str
   option: str
 

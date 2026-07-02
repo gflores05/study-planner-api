@@ -19,5 +19,5 @@ class DbModel(DeclarativeBase):
     return mapped_column(server_default=func.now(), nullable=False)
 
   @declared_attr
-  def version(self) -> Mapped[datetime]:
+  def version(self) -> Mapped[int]:
     return mapped_column(Integer, nullable=False)

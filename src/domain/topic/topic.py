@@ -44,6 +44,9 @@ class Topic(AggregateRoot[TopicId]):
   @staticmethod
   def reconstitute(
     id: TopicId,
+    created_on: datetime,
+    modified_on: datetime,
+    version: int,
     title: TopicTitle,
     sub_topics: list[SubTopic],
     assessment: Assessment,
@@ -51,6 +54,9 @@ class Topic(AggregateRoot[TopicId]):
   ) -> "Topic":
     return Topic(
       id=id,
+      created_on=created_on,
+      modified_on=modified_on,
+      version=version,
       title=title,
       sub_topics=sub_topics,
       assessment=Option.some(assessment),

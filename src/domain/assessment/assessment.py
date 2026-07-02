@@ -36,6 +36,7 @@ class AssessmentStatus(Enum):
   PENDING = "PENDING"
   IN_PROGRESS = "IN_PROGRESS"
   COMPLETED = "COMPLETED"
+  UNKNOWN = "UNKNOWN"
 
 
 @dataclass(kw_only=True)
@@ -62,6 +63,9 @@ class Assessment(AggregateRoot[AssessmentId]):
   @staticmethod
   def reconstitute(
     id: AssessmentId,
+    created_on: datetime,
+    modified_on: datetime,
+    version: int,
     status: AssessmentStatus,
     score: Option[AssessmentScore],
     questions: list[Question],
@@ -71,6 +75,9 @@ class Assessment(AggregateRoot[AssessmentId]):
   ) -> "Assessment":
     return Assessment(
       id=id,
+      created_on=created_on,
+      modified_on=modified_on,
+      version=version,
       status=status,
       score=score,
       questions=questions,

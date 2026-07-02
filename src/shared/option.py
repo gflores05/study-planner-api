@@ -100,6 +100,9 @@ class Option(Generic[T]):
       fn()
     return self
 
+  def to_nullable(self) -> T | None:
+    return self._value
+
   # --- Dunder ---
 
   def __repr__(self) -> str:

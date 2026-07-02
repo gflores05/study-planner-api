@@ -38,17 +38,24 @@ class Question(AggregateRoot[QuestionId]):
   @staticmethod
   def reconstitute(
     id: QuestionId,
+    created_on: datetime,
+    modified_on: datetime,
+    version: int,
     text: QuestionText,
     options: list[Answer],
     answer: AnswerOption,
+    selected_answer: Option[AnswerOption],
     assessment_id: AssessmentId,
   ) -> "Question":
     return Question(
       id=id,
+      created_on=created_on,
+      modified_on=modified_on,
+      version=version,
       text=text,
       options=options,
       answer=answer,
-      selected_answer=Option.nothing(),
+      selected_answer=selected_answer,
       assessment_id=assessment_id,
     )
 
