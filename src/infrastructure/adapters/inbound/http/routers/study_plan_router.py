@@ -19,7 +19,7 @@ class RequestStudyPlanResponse(BaseModel):
   study_plan_id: str
 
 
-study_plan_router = APIRouter(prefix="/study-plan", tags=["study-plan"])
+study_plan_router = APIRouter(prefix="/v1/study-plan", tags=["study-plan"])
 
 
 def map_level(level: str) -> StudyPlanLevelDto:
@@ -40,13 +40,13 @@ def map_level(level: str) -> StudyPlanLevelDto:
 
 @study_plan_router.post("/request", response_model=RequestStudyPlanResponse)
 async def request_study_plan(
-  req: RequestStudyPlanRequest,
+  body: RequestStudyPlanRequest,
   use_case: RequestStudyPlanUseCasePort = Depends(request_study_plan_use_case),
 ) -> RequestStudyPlanResponse:
   try:
     dto = await use_case.execute(
       dto=RequestStudyPlanDTO(
-        subject=req.subject, level=map_level(req.level), grade=req.grade
+        subject=body.subject, level=map_level(body.level), grade=body.grade
       )
     )
 

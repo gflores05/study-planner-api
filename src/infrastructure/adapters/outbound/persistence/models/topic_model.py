@@ -19,5 +19,5 @@ class TopicModel(DbModel):
   study_plan_id: Mapped[uuid.UUID] = mapped_column(
     ForeignKey("study_plan.id"), nullable=False
   )
-  sub_topics: Mapped[list[SubTopicModel]] = relationship(back_populates="sub_topic")
-  assessment: Mapped[AssessmentModel] = relationship(back_populates="Assessment")
+  sub_topics: Mapped[list[SubTopicModel]] = relationship(backref="topic")
+  assessment: Mapped[AssessmentModel] = relationship(backref="topic")

@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import AsyncGenerator
 
-from sqlalchemy import Integer, Uuid, func
+from sqlalchemy import DateTime, Integer, Uuid, func
 from sqlalchemy.ext.asyncio import (
   AsyncEngine,
   AsyncSession,
@@ -24,11 +24,15 @@ class DbModel(DeclarativeBase):
 
   @declared_attr
   def created_on(self) -> Mapped[datetime]:
-    return mapped_column(server_default=func.now(), nullable=False)
+    return mapped_column(
+      DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
 
   @declared_attr
   def modified_on(self) -> Mapped[datetime]:
-    return mapped_column(server_default=func.now(), nullable=False)
+    return mapped_column(
+      DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
 
   @declared_attr
   def version(self) -> Mapped[int]:
@@ -42,7 +46,7 @@ _session_factory: async_sessionmaker[AsyncSession] | None = None
 def get_engine() -> AsyncEngine:
   global _engine
   if _engine is None:
-    from infrastructure.config.settings import get_settings
+    from src.infrastructure.config.settings import get_settings
 
     settings = get_settings()
 

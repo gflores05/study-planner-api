@@ -83,3 +83,4 @@ instance/
 *.njsproj
 *.sln
 *.swp
+playground.py

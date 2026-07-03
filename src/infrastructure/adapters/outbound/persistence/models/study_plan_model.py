@@ -20,4 +20,4 @@ class StudyPlanModel(DbModel):
   level: Mapped[DbStudyPlanLevel] = mapped_column(String(24), nullable=False)
   status: Mapped[str] = mapped_column(String(16), nullable=False)
   grade: Mapped[int] = mapped_column(Integer, nullable=False)
-  topics: Mapped[list[TopicModel]] = relationship(back_populates="topic")
+  topics: Mapped[list[TopicModel]] = relationship(backref="study_plan")

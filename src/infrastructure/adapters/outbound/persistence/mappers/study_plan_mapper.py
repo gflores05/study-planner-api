@@ -5,7 +5,6 @@ from src.domain.study_plan.value_objects.grade import Grade
 from src.domain.study_plan.value_objects.study_plan_id import StudyPlanId
 from src.domain.study_plan.value_objects.subject import Subject
 from src.infrastructure.adapters.outbound.persistence.mappers.topic_mapper import (
-  map_topic_domain_to_model,
   map_topic_model_to_domain,
 )
 from src.infrastructure.adapters.outbound.persistence.models.study_plan_model import (
@@ -47,7 +46,18 @@ def map_study_plan_domain_to_model(domain: StudyPlan) -> StudyPlanModel:
     version=domain.version,
     subject=str(domain.subject),
     level=domain.level,
-    status=str(domain.status),
-    topics=[map_topic_domain_to_model(t) for t in domain.topics],
+    status=map_domain_study_plan_status_to_db(domain.status),
     grade=int(domain.grade),
   )
+
+
+def map_domain_study_plan_status_to_db(db_status: StudyPlanStatus) -> str:
+  match db_status:
+    case StudyPlanStatus.PENDING:
+      return "PENDING"
+    case StudyPlanStatus.GENERATING:
+      return "GENERATING"
+    case StudyPlanStatus.COMPLETED:
+      return "COMPLETED"
+
+  return "UNKNOWN"

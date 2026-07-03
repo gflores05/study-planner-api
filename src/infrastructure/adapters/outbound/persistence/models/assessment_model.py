@@ -15,7 +15,7 @@ class AssessmentModel(DbModel):
 
   status: Mapped[str] = mapped_column(String(16), nullable=False)
   score: Mapped[int] = mapped_column(Integer, nullable=True)
-  started_on: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-  completed_on: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+  started_on: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+  completed_on: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
   topic_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("topic.id"), nullable=False)
-  questions: Mapped[list[QuestionModel]] = relationship(back_populates="question")
+  questions: Mapped[list[QuestionModel]] = relationship(backref="assessment")
