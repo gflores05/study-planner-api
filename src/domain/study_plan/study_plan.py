@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Literal
 
 from src.domain.study_plan.domain_events import StudyPlanGenerated, StudyPlanRequested
+from src.domain.study_plan.value_objects.grade import Grade
 from src.domain.study_plan.value_objects.study_plan_id import StudyPlanId
 from src.domain.study_plan.value_objects.subject import Subject
 from src.domain.topic.topic import Topic
@@ -38,16 +39,18 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
   subject: Subject
   level: StudyPlanLevel
   topics: list[Topic]
+  grade: Grade
   status: StudyPlanStatus
 
   @staticmethod
-  def create(subject: Subject, level: StudyPlanLevel) -> "StudyPlan":
+  def create(subject: Subject, level: StudyPlanLevel, grade: Grade) -> "StudyPlan":
     return StudyPlan(
       id=StudyPlanId.create(),
       subject=subject,
       topics=[],
       level=level,
       status=StudyPlanStatus.PENDING,
+      grade=grade,
     )
 
   @staticmethod
@@ -60,6 +63,7 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
     level: StudyPlanLevel,
     topics: list[Topic],
     status: StudyPlanStatus,
+    grade: Grade,
   ) -> "StudyPlan":
     return StudyPlan(
       id=id,
@@ -70,6 +74,7 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
       level=level,
       topics=topics,
       status=status,
+      grade=grade,
     )
 
   def request(self, requested_on: datetime) -> Result[Unit, StudyPlanError]:

@@ -1,6 +1,6 @@
 from typing import Literal
 
-from sqlalchemy import String
+from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.infrastructure.adapters.outbound.persistence.models.base import DbModel
@@ -19,4 +19,5 @@ class StudyPlanModel(DbModel):
   subject: Mapped[str] = mapped_column(String(100), nullable=False)
   level: Mapped[DbStudyPlanLevel] = mapped_column(String(24), nullable=False)
   status: Mapped[str] = mapped_column(String(16), nullable=False)
+  grade: Mapped[int] = mapped_column(Integer, nullable=False)
   topics: Mapped[list[TopicModel]] = relationship(back_populates="topic")

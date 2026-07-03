@@ -14,6 +14,7 @@ StudyPlanLevelDto = Literal[
 class RequestStudyPlanDTO:
   subject: str
   level: StudyPlanLevelDto
+  grade: int
 
 
 @dataclass
@@ -36,4 +37,5 @@ class StudyPlanDTO:
   id: str
   subject: str
   level: StudyPlanLevelDto
+  grade: int
   topics: list[TopicDTO]

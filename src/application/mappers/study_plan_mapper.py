@@ -9,4 +9,5 @@ def map_study_plan_domain_to_dto(domain: StudyPlan) -> StudyPlanDTO:
     subject=str(domain.subject),
     level=domain.level,
     topics=[map_topic_domain_to_dto(t) for t in domain.topics],
+    grade=int(domain.grade),
   )

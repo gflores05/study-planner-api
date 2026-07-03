@@ -1,0 +1,46 @@
+import os
+from typing import Literal
+
+from dotenv import load_dotenv
+from exa_py import Exa
+from exa_py.api import ContentsOptions
+
+# Load the variables from the .env file
+load_dotenv()
+
+exa = Exa(api_key=os.getenv("EXA_API_KEY"))
+
+
+def get_category(topic: Literal["general", "news", "finance"]):
+    match topic:
+        case "general":
+            return None
+        case "news":
+            return "news"
+        case "finance":
+            return "financial report"
+
+
+def get_contents(include_raw_content: bool) -> ContentsOptions | Literal[False] | None:
+    return {"text": True} if include_raw_content else None
+
+
+# @tool(description=)
+def internet_search(
+    query: str,
+    max_results: int = 5,
+    topic: Literal["general", "news", "finance"] = "general",
+    include_raw_content: bool = False,
+):
+    """Run a web search"""
+
+    category = get_category(topic)
+    contents = get_contents(include_raw_content)
+
+    return exa.search(
+        query=query,
+        type="auto",
+        num_results=max_results,
+        contents=contents,
+        category=category,
+    )

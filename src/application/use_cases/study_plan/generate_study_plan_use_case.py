@@ -1,4 +1,5 @@
 import asyncio
+from dataclasses import dataclass
 from datetime import datetime
 
 from src.application.dtos.answer import AnswerAIDTO
@@ -42,6 +43,13 @@ from src.util.date_util import utc_now
 from src.util.result_util import traverse
 
 
+@dataclass
+class StudyPlanPromptParams:
+  subject: str
+  level: str
+  grade: str
+
+
 class GenerateStudyPlanUseCase(UseCaseEventPublisher):
   def __init__(
     self,
@@ -52,7 +60,7 @@ class GenerateStudyPlanUseCase(UseCaseEventPublisher):
     question_repository: QuestionRepository,
     event_publisher: EventPublisher,
     ai_agent: AIAgent,
-    study_plan_prompt_provider: PromptProvider,
+    study_plan_prompt_provider: PromptProvider[StudyPlanPromptParams],
   ):
     self.study_plan_repository = study_plan_repository
     self.topic_repository = topic_repository
@@ -70,15 +78,14 @@ class GenerateStudyPlanUseCase(UseCaseEventPublisher):
       )
     ).get_or_raise(ValueError("StudyPlanNotFound"))
 
-    system_prompt = await self.study_plan_prompt_provider.get_system_prompt(
-      {"subject": str(study_plan.subject), "level": str(study_plan.level)}
-    )
-    prompt = await self.study_plan_prompt_provider.get_prompt(
-      {"subject": str(study_plan.subject), "level": str(study_plan.level)}
+    prompts = await self.study_plan_prompt_provider.get_prompts(
+      StudyPlanPromptParams(
+        subject=str(study_plan.subject), level=str(study_plan.level), grade=""
+      )
     )
 
     response_text = await self.ai_agent.send_content(
-      prompt, system_prompt=system_prompt
+      prompts.human, system_prompt=prompts.system
     )
 
     generated_study_plan = StudyPlanAIGeneratedDTO.model_validate_json(response_text)

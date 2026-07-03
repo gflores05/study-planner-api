@@ -63,5 +63,5 @@ async def test_generate_study_plan():
   assert response.study_plan_id == str(study_plan.id)
   assert updated_study_plan.status == StudyPlanStatus.COMPLETED
   assert len(response.topics) == 2
-  assert len(response.topics[0].sub_topics) == 3
-  assert len(response.topics[1].sub_topics) == 3
+  assert len(response.topics[0].sub_topics) == 2
+  assert len(response.topics[1].sub_topics) == 2

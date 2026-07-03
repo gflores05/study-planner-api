@@ -1,6 +1,13 @@
+from dataclasses import dataclass
+
 from typing_extensions import Protocol
 
 
-class PromptProvider(Protocol):
-  async def get_system_prompt(self, params: dict) -> str: ...
-  async def get_prompt(self, params: dict) -> str: ...
+@dataclass
+class Prompts:
+  system: str
+  human: str
+
+
+class PromptProvider[T](Protocol):
+  async def get_prompts(self, params: T) -> Prompts: ...
