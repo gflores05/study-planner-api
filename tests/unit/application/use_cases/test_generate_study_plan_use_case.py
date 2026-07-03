@@ -3,6 +3,7 @@ from src.application.use_cases.study_plan.generate_study_plan_use_case import (
   GenerateStudyPlanUseCase,
 )
 from src.domain.study_plan.study_plan import StudyPlan, StudyPlanStatus
+from src.domain.study_plan.value_objects.grade import Grade
 from src.domain.study_plan.value_objects.subject import Subject
 from src.util.date_util import utc_now
 from tests.fakes.infrastructure.ai.fake_ai_agent import FakeAIAgent
@@ -29,7 +30,9 @@ from tests.fakes.infrastructure.persistence.repositories.study_plan_fake_reposit
 
 async def test_generate_study_plan():
   study_plan = StudyPlan.create(
-    subject=Subject.parse("Maths").unwrap_or_raise(), level="University"
+    subject=Subject.parse("Maths").unwrap_or_raise(),
+    level="University",
+    grade=Grade.parse(2).unwrap_or_raise(),
   )
   study_plan.request(requested_on=utc_now())
 
