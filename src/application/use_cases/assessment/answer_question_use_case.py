@@ -1,7 +1,7 @@
 from src.application.dtos.assessment import AnswerQuestionRequestDTO
 from src.application.dtos.question import QuestionDTO
 from src.application.mappers.question_mapper import map_question_domain_to_dto
-from src.application.ports.outbound.messaging.event_publisher import EventPublisher
+from src.application.ports.outbound.messaging.event_publisher import EventPublisherPort
 from src.application.ports.outbound.repositories.assessment_repository import (
   AssessmentRepository,
 )
@@ -20,7 +20,7 @@ class AnswerQuestionUseCase(UseCaseEventPublisher):
     self,
     assessment_repository: AssessmentRepository,
     question_repository: QuestionRepository,
-    event_publisher: EventPublisher,
+    event_publisher: EventPublisherPort,
   ):
     self.event_publisher = event_publisher
     self.assessment_repository = assessment_repository

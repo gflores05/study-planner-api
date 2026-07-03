@@ -6,10 +6,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.infrastructure.adapters.outbound.persistence.models.assessment_model import (
   AssessmentModel,
 )
-from src.infrastructure.adapters.outbound.persistence.models.base import DbModel
 from src.infrastructure.adapters.outbound.persistence.models.sub_topic_model import (
   SubTopicModel,
 )
+from src.infrastructure.config.database import DbModel
 
 
 class TopicModel(DbModel):

@@ -3,10 +3,10 @@ from typing import Literal
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.infrastructure.adapters.outbound.persistence.models.base import DbModel
 from src.infrastructure.adapters.outbound.persistence.models.topic_model import (
   TopicModel,
 )
+from src.infrastructure.config.database import DbModel
 
 DbStudyPlanLevel = Literal[
   "Elementary School", "High School", "Preparatory", "University", "Postgraduate"

@@ -3,5 +3,5 @@ from typing import Protocol
 from src.shared.domain_event import DomainEvent
 
 
-class EventPublisher(Protocol):
+class EventPublisherPort(Protocol):
   async def publish(self, event: DomainEvent) -> None: ...

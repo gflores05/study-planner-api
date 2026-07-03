@@ -1,6 +1,6 @@
 from src.application.dtos.assessment import AssessmentDTO
 from src.application.mappers.assessment_mapper import map_assessment_domain_to_dto
-from src.application.ports.outbound.messaging.event_publisher import EventPublisher
+from src.application.ports.outbound.messaging.event_publisher import EventPublisherPort
 from src.application.ports.outbound.repositories.assessment_repository import (
   AssessmentRepository,
 )
@@ -11,7 +11,9 @@ from src.util.date_util import utc_now
 
 class CompleteAssessmentUseCase(UseCaseEventPublisher):
   def __init__(
-    self, event_publisher: EventPublisher, assessment_repository: AssessmentRepository
+    self,
+    event_publisher: EventPublisherPort,
+    assessment_repository: AssessmentRepository,
   ):
     super().__init__(event_publisher)
     self.assessment_repository = assessment_repository

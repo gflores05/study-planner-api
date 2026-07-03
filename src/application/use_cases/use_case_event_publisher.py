@@ -1,11 +1,11 @@
 import asyncio
 
-from src.application.ports.outbound.messaging.event_publisher import EventPublisher
+from src.application.ports.outbound.messaging.event_publisher import EventPublisherPort
 from src.shared.aggregate_root import AggregateRoot
 
 
 class UseCaseEventPublisher:
-  def __init__(self, event_publisher: EventPublisher):
+  def __init__(self, event_publisher: EventPublisherPort):
     self.event_publisher = event_publisher
 
   async def _publish_events[T](self, domain: AggregateRoot[T]):

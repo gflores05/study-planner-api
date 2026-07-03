@@ -17,3 +17,6 @@ indent-style = "space"
 [tool.pytest.ini_options]
 pythonpath = [".", "src"]
 asyncio_mode = "auto"
+
+[tool.fastapi]
+entrypoint = "src.main:app"

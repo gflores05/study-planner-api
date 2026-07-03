@@ -14,7 +14,7 @@ from src.application.dtos.sub_topic import SubTopicAIDTO, SubTopicResponseDTO
 from src.application.dtos.topic import TopicAIDTO, TopicResponseDTO
 from src.application.ports.outbound.ai.ai_agent import AIAgent
 from src.application.ports.outbound.ai.prompt_provider import PromptProvider
-from src.application.ports.outbound.messaging.event_publisher import EventPublisher
+from src.application.ports.outbound.messaging.event_publisher import EventPublisherPort
 from src.application.ports.outbound.repositories.assessment_repository import (
   AssessmentRepository,
 )
@@ -58,7 +58,7 @@ class GenerateStudyPlanUseCase(UseCaseEventPublisher):
     sub_topic_repository: SubTopicRepository,
     assessment_repository: AssessmentRepository,
     question_repository: QuestionRepository,
-    event_publisher: EventPublisher,
+    event_publisher: EventPublisherPort,
     ai_agent: AIAgent,
     study_plan_prompt_provider: PromptProvider[StudyPlanPromptParams],
   ):

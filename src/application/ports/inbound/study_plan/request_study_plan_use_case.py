@@ -6,5 +6,5 @@ from src.application.dtos.study_plan import (
 )
 
 
-class RequestStudyPlanUseCase(Protocol):
+class RequestStudyPlanUseCasePort(Protocol):
   async def execute(self, dto: RequestStudyPlanDTO) -> StudyPlanResponseDTO: ...

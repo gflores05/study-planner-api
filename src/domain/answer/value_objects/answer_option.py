@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from shared.result import Result
+from src.shared.result import Result
 from src.shared.validation_error import ValidationError
 
 

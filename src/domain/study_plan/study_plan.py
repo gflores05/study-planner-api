@@ -19,7 +19,10 @@ class AddTopicParams:
 
 
 class StudyPlanError(Exception):
-  pass
+  def __init__(self, tag: Literal["StudyPlanNotPending"], study_plan_id: StudyPlanId):
+    super().__init__(tag)
+    self.tag = tag
+    self.study_plan_id = str(study_plan_id)
 
 
 StudyPlanLevel = Literal[
@@ -79,7 +82,9 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
 
   def request(self, requested_on: datetime) -> Result[Unit, StudyPlanError]:
     if self.status != StudyPlanStatus.PENDING:
-      return Result.fail(StudyPlanError("StudyPlanNotPending"))
+      return Result.fail(
+        StudyPlanError(tag="StudyPlanNotPending", study_plan_id=self.id)
+      )
 
     self.status = StudyPlanStatus.GENERATING
 

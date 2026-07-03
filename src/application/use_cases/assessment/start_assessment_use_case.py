@@ -1,5 +1,5 @@
 from src.application.dtos.assessment import StartAssessmentResponseDTO
-from src.application.ports.outbound.messaging.event_publisher import EventPublisher
+from src.application.ports.outbound.messaging.event_publisher import EventPublisherPort
 from src.application.ports.outbound.repositories.assessment_repository import (
   AssessmentRepository,
 )
@@ -10,7 +10,9 @@ from src.util.date_util import utc_now
 
 class StartAssessmentUseCase(UseCaseEventPublisher):
   def __init__(
-    self, assessment_repository: AssessmentRepository, event_publisher: EventPublisher
+    self,
+    assessment_repository: AssessmentRepository,
+    event_publisher: EventPublisherPort,
   ):
     self.event_publisher = event_publisher
     self.assessment_repository = assessment_repository

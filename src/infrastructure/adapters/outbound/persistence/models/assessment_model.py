@@ -4,10 +4,10 @@ from datetime import datetime
 from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.infrastructure.adapters.outbound.persistence.models.base import DbModel
 from src.infrastructure.adapters.outbound.persistence.models.question_model import (
   QuestionModel,
 )
+from src.infrastructure.config.database import DbModel
 
 
 class AssessmentModel(DbModel):

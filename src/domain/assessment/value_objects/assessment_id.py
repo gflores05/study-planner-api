@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
-from shared.result import Result
+from src.shared.result import Result
 from src.shared.validation_error import ValidationError
 from src.util.string_util import is_valid_uuid
 

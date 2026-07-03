@@ -4,10 +4,10 @@ from dataclasses import dataclass
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.infrastructure.adapters.outbound.persistence.models.base import DbModel
 from src.infrastructure.adapters.outbound.persistence.util.jsonb_dataclass import (
   JSONBDataClassArray,
 )
+from src.infrastructure.config.database import DbModel
 
 
 @dataclass
