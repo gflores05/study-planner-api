@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Callable
 
 from src.shared.option import Option
 
@@ -42,6 +43,11 @@ class Result[T, E]:
         if isinstance(self.error, Exception)
         else Exception("ResultFailed")
       )
+    return self.value
+
+  def unwrap_or_map_and_raise(self, excp: Callable[[E], Exception]) -> T:
+    if self.is_failure:
+      raise excp(self.error)
     return self.value
 
   def to_option(self):

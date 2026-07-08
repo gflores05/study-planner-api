@@ -1,7 +1,7 @@
 from typing import Protocol
 
-from src.application.dtos.assessment import AssessmentDTO
+from src.application.dtos.assessment import CompleteAssessmentResponseDTO
 
 
-class CompleteAssessmentUseCase(Protocol):
-  async def execute(self, id: str) -> AssessmentDTO: ...
+class CompleteAssessmentUseCasePort(Protocol):
+  async def execute(self, id: str) -> CompleteAssessmentResponseDTO: ...

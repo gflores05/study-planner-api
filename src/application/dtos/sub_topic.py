@@ -3,8 +3,7 @@ from dataclasses import dataclass
 from pydantic import BaseModel
 
 
-@dataclass
-class SubTopicDTO:
+class SubTopicDTO(BaseModel):
   id: str
   title: str
   study_material: list[str]

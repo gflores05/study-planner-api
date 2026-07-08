@@ -28,6 +28,11 @@ from src.application.ports.outbound.repositories.sub_topic_respository import (
   SubTopicRepository,
 )
 from src.application.ports.outbound.repositories.topic_repository import TopicRepository
+from src.application.use_cases.study_plan.errors import (
+  StudyPlanInvalidInputError,
+  StudyPlanInvalidStatusError,
+  StudyPlanNotFoundError,
+)
 from src.application.use_cases.use_case_event_publisher import UseCaseEventPublisher
 from src.domain.answer.answer import Answer
 from src.domain.answer.value_objects.answer_option import AnswerOption
@@ -74,9 +79,13 @@ class GenerateStudyPlanUseCaseAdapter(UseCaseEventPublisher):
   async def execute(self, dto: GenerateStudyPlanDTO) -> StudyPlanResponseDTO:
     study_plan = (
       await self.study_plan_repository.get(
-        StudyPlanId.parse(dto.study_plan_id).unwrap_or_raise()
+        StudyPlanId.parse(dto.study_plan_id).unwrap_or_map_and_raise(
+          lambda problem: StudyPlanInvalidInputError(
+            value=str(problem.value), field="study_plan_id"
+          )
+        )
       )
-    ).get_or_raise(ValueError("StudyPlanNotFound"))
+    ).get_or_raise(StudyPlanNotFoundError(study_plan_id=dto.study_plan_id))
 
     prompts = await self.study_plan_prompt_provider.get_prompts(
       StudyPlanPromptParams(
@@ -121,7 +130,13 @@ class GenerateStudyPlanUseCaseAdapter(UseCaseEventPublisher):
         )
       )
 
-    study_plan.report_plan_generated(generated_on=now)
+    study_plan.report_plan_generated(generated_on=now).unwrap_or_map_and_raise(
+      lambda problem: StudyPlanInvalidStatusError(
+        study_plan_id=problem.study_plan_id,
+        current_status=problem.current_status,
+        required_status=problem.required_status,
+      )
+    )
 
     await self.study_plan_repository.save(study_plan=study_plan)
 
@@ -176,18 +191,34 @@ class GenerateStudyPlanUseCaseAdapter(UseCaseEventPublisher):
       title=SubTopicTitle.parse(subTopicAI.t).unwrap_or_raise(),
       study_material=traverse(
         [NonEmptyString.parse(sm) for sm in subTopicAI.sm]
-      ).unwrap_or_raise(),
+      ).unwrap_or_map_and_raise(
+        lambda problem: StudyPlanInvalidInputError(
+          value=str(problem.value), field="material"
+        )
+      ),
     )
 
   def _map_question_ai_to_parameters(self, questionAI: QuestionAIDTO):
     return AddQuestionParam(
       text=QuestionText.parse(questionAI.t).unwrap_or_raise(),
       options=[self._map_answer_ai_dto_to_domain(ans) for ans in questionAI.os],
-      answer=AnswerOption.parse(questionAI.a).unwrap_or_raise(),
+      answer=AnswerOption.parse(questionAI.a).unwrap_or_map_and_raise(
+        lambda problem: StudyPlanInvalidInputError(
+          value=str(problem.value), field="answer"
+        )
+      ),
     )
 
   def _map_answer_ai_dto_to_domain(self, dto: AnswerAIDTO) -> Answer:
     return Answer.create(
-      text=NonEmptyString.parse(dto.t).unwrap_or_raise(),
-      option=AnswerOption.parse(dto.o).unwrap_or_raise(),
+      text=NonEmptyString.parse(dto.t).unwrap_or_map_and_raise(
+        lambda problem: StudyPlanInvalidInputError(
+          value=str(problem.value), field="text"
+        )
+      ),
+      option=AnswerOption.parse(dto.o).unwrap_or_map_and_raise(
+        lambda problem: StudyPlanInvalidInputError(
+          value=str(problem.value), field="option"
+        )
+      ),
     )

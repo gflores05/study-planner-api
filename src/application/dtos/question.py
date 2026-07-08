@@ -5,8 +5,7 @@ from pydantic import BaseModel
 from src.application.dtos.answer import AnswerAIDTO, AnswerDTO
 
 
-@dataclass
-class QuestionDTO:
+class QuestionDTO(BaseModel):
   id: str
   text: str
   options: list[AnswerDTO]

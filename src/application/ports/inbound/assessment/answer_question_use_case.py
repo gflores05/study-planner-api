@@ -1,8 +1,10 @@
 from typing import Protocol
 
-from src.application.dtos.assessment import AnswerQuestionRequestDTO
+from src.application.dtos.assessment import AnswerQuestionResponseDTO
 from src.application.dtos.question import QuestionDTO
 
 
-class AnswerQuestionUseCase(Protocol):
-  async def execute(self, dto: AnswerQuestionRequestDTO) -> QuestionDTO: ...
+class AnswerQuestionUseCasePort(Protocol):
+  async def execute(
+    self, assessment_id: str, dto: AnswerQuestionResponseDTO
+  ) -> QuestionDTO: ...

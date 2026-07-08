@@ -1,7 +1,22 @@
 from dependency_injector import containers, providers
 
+from src.application.use_cases.assessment.answer_question_use_case import (
+  AnswerQuestionUseCaseAdapter,
+)
+from src.application.use_cases.assessment.complete_assessment_use_case import (
+  CompleteAssessmentUseCaseAdapter,
+)
+from src.application.use_cases.assessment.get_assessment_use_case import (
+  GetAssessmentUseCaseAdapter,
+)
+from src.application.use_cases.assessment.start_assessment_use_case import (
+  StartAssessmentUseCaseAdapter,
+)
 from src.application.use_cases.study_plan.generate_study_plan_use_case import (
   GenerateStudyPlanUseCaseAdapter,
+)
+from src.application.use_cases.study_plan.get_study_plan_use_case import (
+  GetStudyPlanUseCaseAdapter,
 )
 from src.application.use_cases.study_plan.request_study_plan_use_case import (
   RequestStudyPlanUseCaseAdapter,
@@ -93,6 +108,33 @@ class Container(containers.DeclarativeContainer):
     event_publisher=event_publisher,
     ai_agent=ai_agent,
     study_plan_prompt_provider=study_plan_prompt_provider,
+  )
+
+  get_study_plan_use_case = providers.Factory(
+    GetStudyPlanUseCaseAdapter, study_plan_repository=study_plan_repository
+  )
+
+  get_assessment_use_Case = providers.Factory(
+    GetAssessmentUseCaseAdapter, assessment_repository=assessment_repository
+  )
+
+  start_assessment_use_case = providers.Factory(
+    StartAssessmentUseCaseAdapter,
+    assessment_repository=assessment_repository,
+    event_publisher=event_publisher,
+  )
+
+  answer_question_use_case = providers.Factory(
+    AnswerQuestionUseCaseAdapter,
+    assessment_repository=assessment_repository,
+    question_repository=question_repository,
+    event_publisher=event_publisher,
+  )
+
+  complete_assessment_use_case = providers.Factory(
+    CompleteAssessmentUseCaseAdapter,
+    event_publisher=event_publisher,
+    assessment_repository=assessment_repository,
   )
 
   study_plan_requested_event_handler = providers.Callable(

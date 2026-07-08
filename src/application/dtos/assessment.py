@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
 
+from pydantic import BaseModel
+
 from src.application.dtos.question import QuestionDTO, QuestionResponseDTO
 
 
@@ -10,8 +12,7 @@ class AssessmentStatusDTO(Enum):
   COMPLETED = "COMPLETED"
 
 
-@dataclass
-class AssessmentDTO:
+class AssessmentDTO(BaseModel):
   id: str
   status: AssessmentStatusDTO
   score: int | None
@@ -21,19 +22,25 @@ class AssessmentDTO:
   topic_id: str
 
 
-@dataclass
-class AnswerQuestionRequestDTO:
-  assessment_id: str
+class AnswerQuestionRequestDTO(BaseModel):
   question_id: str
   selected_answer: str
 
 
-@dataclass
-class StartAssessmentResponseDTO:
+class StartAssessmentResponseDTO(BaseModel):
   assessment_id: str
 
 
+class CompleteAssessmentResponseDTO(BaseModel):
+  assessment_id: str
+
+
+class AnswerQuestionResponseDTO(BaseModel):
+  assessment_id: str
+  question_id: str
+
+
 @dataclass
-class AssessmentResponseDTO:
+class AssessmentResponseDTO(BaseModel):
   id: str
   questions: list[QuestionResponseDTO]

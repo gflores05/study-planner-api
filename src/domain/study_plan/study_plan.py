@@ -22,10 +22,12 @@ class AddTopicParams:
   title: TopicTitle
 
 
-class StudyPlanError(Exception):
-  def __init__(self, tag: Literal["StudyPlanNotPending"], study_plan_id: StudyPlanId):
-    super().__init__(tag)
-    self.tag = tag
+class StudyPlanProblem:
+  def __init__(
+    self, current_status: str, required_status: str, study_plan_id: StudyPlanId
+  ):
+    self.current_status = current_status
+    self.required_status = required_status
     self.study_plan_id = str(study_plan_id)
 
 
@@ -85,10 +87,14 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
       grade=grade,
     )
 
-  def request(self, requested_on: datetime) -> Result[Unit, StudyPlanError]:
+  def request(self, requested_on: datetime) -> Result[Unit, StudyPlanProblem]:
     if self.status != StudyPlanStatus.PENDING:
       return Result.fail(
-        StudyPlanError(tag="StudyPlanNotPending", study_plan_id=self.id)
+        StudyPlanProblem(
+          current_status=self.status.value,
+          required_status=StudyPlanStatus.PENDING.value,
+          study_plan_id=self.id,
+        )
       )
 
     self.status = StudyPlanStatus.GENERATING
@@ -109,12 +115,25 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
 
     return topic
 
-  def report_plan_generated(self, generated_on: datetime):
+  def report_plan_generated(
+    self, generated_on: datetime
+  ) -> Result[Unit, StudyPlanProblem]:
+    if self.status != StudyPlanStatus.GENERATING:
+      return Result.fail(
+        StudyPlanProblem(
+          current_status=self.status.value,
+          required_status=StudyPlanStatus.GENERATING.value,
+          study_plan_id=self.id,
+        )
+      )
+
     self.modified_on = generated_on
     self.status = StudyPlanStatus.COMPLETED
     self.add_domain_event(
       StudyPlanGenerated(study_plan_id=str(self.id), generated_on=generated_on)
     )
+
+    return Result.ok(Unit)
 
   def report_failure(self, failed_on: datetime):
     self.modified_on = failed_on

@@ -1,10 +1,7 @@
-from dataclasses import dataclass
-
 from pydantic import BaseModel
 
 
-@dataclass
-class AnswerDTO:
+class AnswerDTO(BaseModel):
   id: str
   text: str
   option: str

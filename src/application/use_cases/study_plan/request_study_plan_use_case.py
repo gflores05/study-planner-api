@@ -6,6 +6,7 @@ from src.application.ports.outbound.messaging.event_publisher import EventPublis
 from src.application.ports.outbound.repositories.study_plan_repository import (
   StudyPlanRepository,
 )
+from src.application.use_cases.study_plan.errors import StudyPlanInvalidStatusError
 from src.application.use_cases.use_case_event_publisher import UseCaseEventPublisher
 from src.domain.study_plan.study_plan import StudyPlan
 from src.domain.study_plan.value_objects.grade import Grade
@@ -29,7 +30,13 @@ class RequestStudyPlanUseCaseAdapter(UseCaseEventPublisher):
       grade=Grade.parse(dto.grade).unwrap_or_raise(),
     )
 
-    study_plan.request(utc_now()).unwrap_or_raise()
+    study_plan.request(utc_now()).unwrap_or_map_and_raise(
+      lambda problem: StudyPlanInvalidStatusError(
+        study_plan_id=problem.study_plan_id,
+        current_status=problem.current_status,
+        required_status="PENDING",
+      )
+    )
 
     await self.study_plan_repository.save(study_plan=study_plan)
 

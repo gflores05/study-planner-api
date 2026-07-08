@@ -11,8 +11,7 @@ from src.application.dtos.sub_topic import (
 )
 
 
-@dataclass
-class TopicDTO:
+class TopicDTO(BaseModel):
   id: str
   title: str
   sub_topics: list[SubTopicDTO]

@@ -41,8 +41,7 @@ class StudyPlanAIGeneratedDTO(BaseModel):
   ts: list[TopicAIDTO]
 
 
-@dataclass
-class StudyPlanDTO:
+class StudyPlanDTO(BaseModel):
   id: str
   subject: str
   level: StudyPlanLevelDto

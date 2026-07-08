@@ -8,6 +8,11 @@ from src.domain.assessment.domain_events import (
   AssessmentCompleted,
   AssessmentStarted,
 )
+from src.domain.assessment.problems import (
+  AssessmentInvalidStatusProblem,
+  AssessmentProblem,
+  AssessmentQuestionNotFoundProblem,
+)
 from src.domain.assessment.value_objects.assessment_id import AssessmentId
 from src.domain.assessment.value_objects.assessment_score import (
   AssessmentScore,
@@ -26,10 +31,6 @@ class AddQuestionParam:
   text: QuestionText
   options: list[Answer]
   answer: AnswerOption
-
-
-class AssessmentError(Exception):
-  pass
 
 
 class AssessmentStatus(Enum):
@@ -97,9 +98,15 @@ class Assessment(AggregateRoot[AssessmentId]):
 
     return question
 
-  def start(self, started_on: datetime) -> Result[Unit, AssessmentError]:
+  def start(self, started_on: datetime) -> Result[Unit, AssessmentProblem]:
     if self.status != AssessmentStatus.PENDING:
-      return Result.fail(AssessmentError("AssessmentNotPending"))
+      return Result.fail(
+        AssessmentInvalidStatusProblem(
+          assessment_id=str(self.id),
+          current_status=self.status.value,
+          required_status=AssessmentStatus.PENDING.value,
+        )
+      )
 
     self.started_on = Option.some(started_on)
     self.status = AssessmentStatus.IN_PROGRESS
@@ -109,9 +116,15 @@ class Assessment(AggregateRoot[AssessmentId]):
 
     return Result.ok(Unit)
 
-  def complete(self, completed_on: datetime) -> Result[Unit, AssessmentError]:
+  def complete(self, completed_on: datetime) -> Result[Unit, AssessmentProblem]:
     if self.status != AssessmentStatus.IN_PROGRESS:
-      return Result.fail(AssessmentError("AssessmentNotInProgress"))
+      return Result.fail(
+        AssessmentInvalidStatusProblem(
+          assessment_id=str(self.id),
+          current_status=self.status.value,
+          required_status=AssessmentStatus.IN_PROGRESS.value,
+        )
+      )
 
     self.completed_on = Option.some(completed_on)
     self.score = Option.some(
@@ -126,16 +139,26 @@ class Assessment(AggregateRoot[AssessmentId]):
 
   def answer_question(
     self, question_id: QuestionId, selected_answer: AnswerOption, answer_on: datetime
-  ) -> Result[Question, AssessmentError]:
+  ) -> Result[Question, AssessmentProblem]:
     if self.status != AssessmentStatus.IN_PROGRESS:
-      return Result.fail(AssessmentError("AssessmentNotInProgress"))
+      return Result.fail(
+        AssessmentInvalidStatusProblem(
+          assessment_id=str(self.id),
+          current_status=self.status.value,
+          required_status=AssessmentStatus.IN_PROGRESS.value,
+        )
+      )
 
     question = next(
       (question for question in self.questions if question.id == question_id), None
     )
 
     if question is None:
-      return Result.fail(AssessmentError("QuestionNotFound"))
+      return Result.fail(
+        AssessmentQuestionNotFoundProblem(
+          assessment_id=str(self.id), question_id=str(question_id)
+        )
+      )
 
     self.modified_on = answer_on
 
