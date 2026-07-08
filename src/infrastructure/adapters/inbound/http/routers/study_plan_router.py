@@ -1,12 +1,15 @@
+from typing import Annotated
+
+from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
 from src.application.dtos.study_plan import RequestStudyPlanDTO, StudyPlanLevelDto
-from src.application.ports.inbound.study_plan.request_study_plan_use_case import (
-  RequestStudyPlanUseCasePort,
+from src.application.use_cases.study_plan.request_study_plan_use_case import (
+  RequestStudyPlanUseCaseAdapter,
 )
 from src.domain.study_plan.study_plan import StudyPlanError
-from src.infrastructure.config.container import request_study_plan_use_case
+from src.infrastructure.config.container import Container
 
 
 class RequestStudyPlanRequest(BaseModel):
@@ -39,9 +42,13 @@ def map_level(level: str) -> StudyPlanLevelDto:
 
 
 @study_plan_router.post("/request", response_model=RequestStudyPlanResponse)
+@inject
 async def request_study_plan(
   body: RequestStudyPlanRequest,
-  use_case: RequestStudyPlanUseCasePort = Depends(request_study_plan_use_case),
+  use_case: Annotated[
+    RequestStudyPlanUseCaseAdapter,
+    Depends(Provide[Container.request_study_plan_use_case]),
+  ],
 ) -> RequestStudyPlanResponse:
   try:
     dto = await use_case.execute(

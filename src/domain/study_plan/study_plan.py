@@ -89,7 +89,7 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
     self.status = StudyPlanStatus.GENERATING
 
     self.add_domain_event(
-      StudyPlanRequested(study_plan_id=self.id, requested_on=requested_on)
+      StudyPlanRequested(study_plan_id=str(self.id), requested_on=requested_on)
     )
 
     return Result.ok(Unit)
@@ -108,5 +108,5 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
     self.modified_on = generated_on
     self.status = StudyPlanStatus.COMPLETED
     self.add_domain_event(
-      StudyPlanGenerated(study_plan_id=self.id, generated_on=generated_on)
+      StudyPlanGenerated(study_plan_id=str(self.id), generated_on=generated_on)
     )

@@ -1,12 +1,7 @@
-from __future__ import annotations
-
-from typing import Callable, Generic, TypeVar
-
-T = TypeVar("T")
-U = TypeVar("U")
+from typing import Callable
 
 
-class Option(Generic[T]):
+class Option[T]:
   """
   Represents a value that may or may not be present.
   Replaces None checks with explicit, chainable operations.
@@ -64,13 +59,13 @@ class Option(Generic[T]):
 
   # --- Chaining ---
 
-  def map(self, fn: Callable[[T], U]) -> "Option[U]":
+  def map[U](self, fn: Callable[[T], U]) -> "Option[U]":
     """Transform the value inside if present."""
     if self._value is None:
       return Option.nothing()
     return Option.of(fn(self._value))
 
-  def flat_map(self, fn: Callable[[T], "Option[U]"]) -> "Option[U]":
+  def flat_map[U](self, fn: Callable[[T], "Option[U]"]) -> "Option[U]":
     """Chain operations that themselves return an Option."""
     if self._value is None:
       return Option.nothing()

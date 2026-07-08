@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from src.domain.study_plan.value_objects.study_plan_id import StudyPlanId
 from src.shared.domain_event import DomainEvent
 
 
@@ -9,11 +8,11 @@ from src.shared.domain_event import DomainEvent
 class StudyPlanGenerated(DomainEvent):
   event_name: str = field(default="StudyPlanGenerated")
   generated_on: datetime
-  study_plan_id: StudyPlanId
+  study_plan_id: str
 
 
 @dataclass(frozen=True, kw_only=True)
 class StudyPlanRequested(DomainEvent):
   event_name: str = field(default="StudyPlanRequested")
-  study_plan_id: StudyPlanId
+  study_plan_id: str
   requested_on: datetime

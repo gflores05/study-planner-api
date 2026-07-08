@@ -3,8 +3,6 @@ from typing import Literal
 from exa_py import Exa
 from exa_py.api import ContentsOptions
 
-from src.infrastructure.config.settings import Settings
-
 
 def get_category(topic: Literal["general", "news", "finance"]):
   match topic:
@@ -20,8 +18,8 @@ def get_contents(include_raw_content: bool) -> ContentsOptions | Literal[False] 
   return {"text": True} if include_raw_content else None
 
 
-def internet_search_factory(settings: Settings):
-  exa = Exa(api_key=settings.exa_api_key)
+def internet_search_factory(exa_api_key: str):
+  exa = Exa(api_key=exa_api_key)
 
   def internet_search(
     query: str,

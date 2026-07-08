@@ -42,7 +42,7 @@ class AssessmentStatus(Enum):
 @dataclass(kw_only=True)
 class Assessment(AggregateRoot[AssessmentId]):
   status: AssessmentStatus
-  score: Option["AssessmentScore"]
+  score: Option[AssessmentScore]
   questions: list[Question]
   started_on: Option[datetime]
   completed_on: Option[datetime]
@@ -104,7 +104,7 @@ class Assessment(AggregateRoot[AssessmentId]):
     self.started_on = Option.some(started_on)
     self.status = AssessmentStatus.IN_PROGRESS
     self.add_domain_event(
-      AssessmentStarted(assessment_id=self.id, started_on=started_on)
+      AssessmentStarted(assessment_id=str(self.id), started_on=started_on)
     )
 
     return Result.ok(Unit)
@@ -119,7 +119,7 @@ class Assessment(AggregateRoot[AssessmentId]):
     )
     self.status = AssessmentStatus.COMPLETED
     self.add_domain_event(
-      AssessmentCompleted(assessment_id=self.id, completed_on=completed_on)
+      AssessmentCompleted(assessment_id=str(self.id), completed_on=completed_on)
     )
 
     return Result.ok(Unit)

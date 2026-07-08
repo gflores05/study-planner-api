@@ -78,7 +78,9 @@ class Topic(AggregateRoot[TopicId]):
 
     self.add_domain_event(
       TopicAssessmentGenerated(
-        topic_id=self.id, assessment=self.assessment.get(), generated_on=generated_on
+        topic_id=str(self.id),
+        assessment=self.assessment.get(),
+        generated_on=generated_on,
       )
     )
 

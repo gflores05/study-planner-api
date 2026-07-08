@@ -6,14 +6,14 @@ from src.application.dtos.answer import AnswerAIDTO
 from src.application.dtos.assessment import AssessmentResponseDTO
 from src.application.dtos.question import QuestionAIDTO, QuestionResponseDTO
 from src.application.dtos.study_plan import (
-  GeneratStudyPlanDTO,
+  GenerateStudyPlanDTO,
   StudyPlanAIGeneratedDTO,
   StudyPlanResponseDTO,
 )
 from src.application.dtos.sub_topic import SubTopicAIDTO, SubTopicResponseDTO
 from src.application.dtos.topic import TopicAIDTO, TopicResponseDTO
-from src.application.ports.outbound.ai.ai_agent import AIAgent
-from src.application.ports.outbound.ai.prompt_provider import PromptProvider
+from src.application.ports.outbound.ai.ai_agent import AIAgentPort
+from src.application.ports.outbound.ai.prompt_provider import PromptProviderPort
 from src.application.ports.outbound.messaging.event_publisher import EventPublisherPort
 from src.application.ports.outbound.repositories.assessment_repository import (
   AssessmentRepository,
@@ -50,7 +50,7 @@ class StudyPlanPromptParams:
   grade: str
 
 
-class GenerateStudyPlanUseCase(UseCaseEventPublisher):
+class GenerateStudyPlanUseCaseAdapter(UseCaseEventPublisher):
   def __init__(
     self,
     study_plan_repository: StudyPlanRepository,
@@ -59,8 +59,8 @@ class GenerateStudyPlanUseCase(UseCaseEventPublisher):
     assessment_repository: AssessmentRepository,
     question_repository: QuestionRepository,
     event_publisher: EventPublisherPort,
-    ai_agent: AIAgent,
-    study_plan_prompt_provider: PromptProvider[StudyPlanPromptParams],
+    ai_agent: AIAgentPort,
+    study_plan_prompt_provider: PromptProviderPort[StudyPlanPromptParams],
   ):
     self.study_plan_repository = study_plan_repository
     self.topic_repository = topic_repository
@@ -71,7 +71,7 @@ class GenerateStudyPlanUseCase(UseCaseEventPublisher):
     self.ai_agent = ai_agent
     self.study_plan_prompt_provider = study_plan_prompt_provider
 
-  async def execute(self, dto: GeneratStudyPlanDTO) -> StudyPlanResponseDTO:
+  async def execute(self, dto: GenerateStudyPlanDTO) -> StudyPlanResponseDTO:
     study_plan = (
       await self.study_plan_repository.get(
         StudyPlanId.parse(dto.study_plan_id).unwrap_or_raise()

@@ -1,5 +1,4 @@
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.question.question import Question
 from src.domain.question.value_objects.question_id import QuestionId
@@ -10,26 +9,29 @@ from src.infrastructure.adapters.outbound.persistence.mappers.question_mapper im
 from src.infrastructure.adapters.outbound.persistence.models.question_model import (
   QuestionModel,
 )
+from src.infrastructure.config.database import Database
 from src.shared.option import Option
 
 
 class QuestionRepository:
-  def __init__(self, session: AsyncSession):
-    self._session = session
+  def __init__(self, db: Database):
+    self._db = db
 
   async def get(self, id: QuestionId) -> Option[Question]:
-    result = await self._session.execute(
-      select(QuestionModel).where(QuestionModel.id == id)
-    )
+    async with self._db.get_session() as session:
+      result = await session.execute(
+        select(QuestionModel).where(QuestionModel.id == str(id))
+      )
 
-    row = result.scalar_one_or_none()
+      row = result.scalar_one_or_none()
 
-    if not row:
-      return Option.nothing()
-    return Option.some(map_question_model_to_domain(row))
+      if not row:
+        return Option.nothing()
+      return Option.some(map_question_model_to_domain(row))
 
   async def save(self, question: Question):
-    question.increment_version()
-    model = map_question_domain_to_model(question)
-    await self._session.merge(model)
-    await self._session.flush()
+    async with self._db.get_session() as session:
+      question.increment_version()
+      model = map_question_domain_to_model(question)
+      await session.merge(model)
+      await session.flush()

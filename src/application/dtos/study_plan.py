@@ -24,7 +24,7 @@ class StudyPlanResponseDTO:
 
 
 @dataclass
-class GeneratStudyPlanDTO:
+class GenerateStudyPlanDTO:
   study_plan_id: str
 
 

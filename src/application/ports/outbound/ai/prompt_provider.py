@@ -9,5 +9,5 @@ class Prompts:
   human: str
 
 
-class PromptProvider[T](Protocol):
+class PromptProviderPort[T](Protocol):
   async def get_prompts(self, params: T) -> Prompts: ...

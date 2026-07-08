@@ -1,5 +1,4 @@
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.sub_topic.sub_topic import SubTopic
 from src.domain.sub_topic.value_objects.sub_topic_id import SubTopicId
@@ -10,26 +9,29 @@ from src.infrastructure.adapters.outbound.persistence.mappers.sub_topic_mapper i
 from src.infrastructure.adapters.outbound.persistence.models.sub_topic_model import (
   SubTopicModel,
 )
+from src.infrastructure.config.database import Database
 from src.shared.option import Option
 
 
 class SubTopicRepository:
-  def __init__(self, session: AsyncSession):
-    self._session = session
+  def __init__(self, db: Database):
+    self._db = db
 
   async def get(self, id: SubTopicId) -> Option[SubTopic]:
-    result = await self._session.execute(
-      select(SubTopicModel).where(SubTopicModel.id == id)
-    )
+    async with self._db.get_session() as session:
+      result = await session.execute(
+        select(SubTopicModel).where(SubTopicModel.id == str(id))
+      )
 
-    row = result.scalar_one_or_none()
+      row = result.scalar_one_or_none()
 
-    if not row:
-      return Option.nothing()
-    return Option.some(map_sub_topic_model_to_domain(row))
+      if not row:
+        return Option.nothing()
+      return Option.some(map_sub_topic_model_to_domain(row))
 
   async def save(self, sub_topic: SubTopic):
-    sub_topic.increment_version()
-    model = map_sub_topic_domain_to_model(sub_topic)
-    await self._session.merge(model)
-    await self._session.flush()
+    async with self._db.get_session() as session:
+      sub_topic.increment_version()
+      model = map_sub_topic_domain_to_model(sub_topic)
+      await session.merge(model)
+      await session.flush()

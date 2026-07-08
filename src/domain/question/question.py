@@ -68,6 +68,8 @@ class Question(AggregateRoot[QuestionId]):
     self.modified_on = answer_on
     self.add_domain_event(
       AnswerSelected(
-        question_id=self.id, selected_answer=selected_answer, answer_on=answer_on
+        question_id=str(self.id),
+        selected_answer=str(selected_answer),
+        answer_on=answer_on,
       )
     )

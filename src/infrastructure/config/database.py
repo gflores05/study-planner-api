@@ -1,4 +1,5 @@
 import uuid
+from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import AsyncGenerator
 
@@ -39,72 +40,61 @@ class DbModel(DeclarativeBase):
     return mapped_column(Integer, nullable=False)
 
 
-_engine: AsyncEngine | None = None
-_session_factory: async_sessionmaker[AsyncSession] | None = None
+class Database:
+  _engine: AsyncEngine | None = None
+  _session_factory: async_sessionmaker[AsyncSession] | None = None
 
+  def __init__(self, database_url: str, db_echo: bool) -> None:
+    self.database_url = database_url
+    self.db_echo = db_echo
 
-def get_engine() -> AsyncEngine:
-  global _engine
-  if _engine is None:
-    from src.infrastructure.config.settings import get_settings
+  @asynccontextmanager
+  async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
+    factory = self._get_session_factory()
+    async with factory() as session:
+      try:
+        yield session
+        await session.commit()
+      except Exception:
+        await session.rollback()
+        raise
+      finally:
+        await session.close()
 
-    settings = get_settings()
+  def _get_session_factory(self) -> async_sessionmaker[AsyncSession]:
+    if self._session_factory is None:
+      self._session_factory = async_sessionmaker(
+        bind=self._get_engine(),
+        class_=AsyncSession,
+        expire_on_commit=False,  # avoids lazy-load errors after commit
+        autocommit=False,
+        autoflush=False,
+      )
+    return self._session_factory
 
-    _engine = create_async_engine(
-      settings.database_url,
-      echo=settings.db_echo,  # logs SQL — useful in development
-      pool_size=10,
-      max_overflow=20,
-      pool_pre_ping=True,  # drops stale connections automatically
-    )
-  return _engine
+  def _get_engine(self) -> AsyncEngine:
+    if self._engine is None:
+      self._engine = create_async_engine(
+        self.database_url,
+        echo=self.db_echo,  # logs SQL — useful in development
+        pool_size=10,
+        max_overflow=20,
+        pool_pre_ping=True,  # drops stale connections automatically
+      )
+    return self._engine
 
+  # ---------------------------------------------------
+  # Startup / shutdown — called from main.py
+  # ---------------------------------------------------
 
-def get_session_factory() -> async_sessionmaker[AsyncSession]:
-  global _session_factory
-  if _session_factory is None:
-    _session_factory = async_sessionmaker(
-      bind=get_engine(),
-      class_=AsyncSession,
-      expire_on_commit=False,  # avoids lazy-load errors after commit
-      autocommit=False,
-      autoflush=False,
-    )
-  return _session_factory
+  async def init(self) -> None:
+    """Create all tables on startup (use Alembic in production instead)."""
+    async with self._get_engine().begin() as conn:
+      await conn.run_sync(DbModel.metadata.create_all)
 
-
-# ---------------------------------------------------
-# FastAPI dependency — one session per request
-# ---------------------------------------------------
-
-
-async def get_session() -> AsyncGenerator[AsyncSession, None]:
-  factory = get_session_factory()
-  async with factory() as session:
-    try:
-      yield session
-      await session.commit()
-    except Exception:
-      await session.rollback()
-      raise
-    finally:
-      await session.close()
-
-
-# ---------------------------------------------------
-# Startup / shutdown — called from main.py
-# ---------------------------------------------------
-
-
-async def init_db() -> None:
-  """Seed datatabase if it's necessary"""
-  pass
-
-
-async def close_db() -> None:
-  """Dispose the engine cleanly on shutdown."""
-  global _engine, _session_factory
-  if _engine:
-    await _engine.dispose()
-    _engine = None
-    _session_factory = None
+  async def close(self) -> None:
+    """Dispose the engine cleanly on shutdown."""
+    if self._engine:
+      await self._engine.dispose()
+      self._engine = None
+      self._session_factory = None

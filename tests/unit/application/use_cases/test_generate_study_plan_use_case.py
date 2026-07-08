@@ -1,6 +1,6 @@
-from src.application.dtos.study_plan import GeneratStudyPlanDTO
+from src.application.dtos.study_plan import GenerateStudyPlanDTO
 from src.application.use_cases.study_plan.generate_study_plan_use_case import (
-  GenerateStudyPlanUseCase,
+  GenerateStudyPlanUseCaseAdapter,
 )
 from src.domain.study_plan.study_plan import StudyPlan, StudyPlanStatus
 from src.domain.study_plan.value_objects.grade import Grade
@@ -44,7 +44,7 @@ async def test_generate_study_plan():
 
   event_publisher = FakeEventPublisher()
 
-  use_case = GenerateStudyPlanUseCase(
+  use_case = GenerateStudyPlanUseCaseAdapter(
     study_plan_repository=study_plan_repository,
     topic_repository=topic_repository,
     sub_topic_repository=sub_topic_repository,
@@ -56,7 +56,7 @@ async def test_generate_study_plan():
   )
 
   response = await use_case.execute(
-    GeneratStudyPlanDTO(study_plan_id=str(study_plan.id))
+    GenerateStudyPlanDTO(study_plan_id=str(study_plan.id))
   )
 
   updated_study_plan = (await study_plan_repository.get(study_plan.id)).get_or_raise(
