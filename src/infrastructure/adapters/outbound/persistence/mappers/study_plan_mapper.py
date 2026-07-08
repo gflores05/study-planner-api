@@ -34,6 +34,8 @@ def map_db_study_plan_status_to_domain(db_status: str) -> StudyPlanStatus:
       return StudyPlanStatus.GENERATING
     case "COMPLETED":
       return StudyPlanStatus.COMPLETED
+    case "FAILED":
+      return StudyPlanStatus.FAILED
 
   return StudyPlanStatus.UNKNOWN
 
@@ -59,5 +61,7 @@ def map_domain_study_plan_status_to_db(db_status: StudyPlanStatus) -> str:
       return "GENERATING"
     case StudyPlanStatus.COMPLETED:
       return "COMPLETED"
+    case StudyPlanStatus.FAILED:
+      return "FAILED"
 
   return "UNKNOWN"

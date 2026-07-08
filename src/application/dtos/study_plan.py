@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 from typing import Literal
 
 from pydantic import BaseModel
@@ -8,6 +9,14 @@ from src.application.dtos.topic import TopicAIDTO, TopicDTO, TopicResponseDTO
 StudyPlanLevelDto = Literal[
   "Elementary School", "High School", "Preparatory", "University", "Postgraduate"
 ]
+
+
+class StudyPlanStatusDTO(Enum):
+  PENDING = "PENDING"
+  GENERATING = "GENERATING"
+  COMPLETED = "COMPLETED"
+  UNKNOWN = "UNKNOWN"
+  FAILED = "FAILED"
 
 
 @dataclass
@@ -39,3 +48,4 @@ class StudyPlanDTO:
   level: StudyPlanLevelDto
   grade: int
   topics: list[TopicDTO]
+  status: StudyPlanStatusDTO
