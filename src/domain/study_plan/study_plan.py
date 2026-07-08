@@ -3,7 +3,11 @@ from datetime import datetime
 from enum import Enum
 from typing import Literal
 
-from src.domain.study_plan.domain_events import StudyPlanGenerated, StudyPlanRequested
+from src.domain.study_plan.domain_events import (
+  StudyPlanErrorReported,
+  StudyPlanGenerated,
+  StudyPlanRequested,
+)
 from src.domain.study_plan.value_objects.grade import Grade
 from src.domain.study_plan.value_objects.study_plan_id import StudyPlanId
 from src.domain.study_plan.value_objects.subject import Subject
@@ -35,6 +39,7 @@ class StudyPlanStatus(Enum):
   GENERATING = "GENERATING"
   COMPLETED = "COMPLETED"
   UNKNOWN = "UNKNOWN"
+  FAILED = "FAILED"
 
 
 @dataclass(kw_only=True)
@@ -109,4 +114,11 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
     self.status = StudyPlanStatus.COMPLETED
     self.add_domain_event(
       StudyPlanGenerated(study_plan_id=str(self.id), generated_on=generated_on)
+    )
+
+  def report_failure(self, failed_on: datetime):
+    self.modified_on = failed_on
+    self.status = StudyPlanStatus.FAILED
+    self.add_domain_event(
+      StudyPlanErrorReported(study_plan_id=str(self.id), failed_on=failed_on)
     )

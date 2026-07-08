@@ -84,13 +84,18 @@ class GenerateStudyPlanUseCaseAdapter(UseCaseEventPublisher):
       )
     )
 
-    response_text = await self.ai_agent.send_content(
-      prompts.human, system_prompt=prompts.system
-    )
+    now = utc_now()
+
+    try:
+      response_text = await self.ai_agent.send_content(
+        prompts.human, system_prompt=prompts.system
+      )
+    except Exception:
+      study_plan.report_failure(failed_on=now)
+
+      return StudyPlanResponseDTO(study_plan_id=str(study_plan.id), topics=[])
 
     generated_study_plan = StudyPlanAIGeneratedDTO.model_validate_json(response_text)
-
-    now = utc_now()
 
     topics_response: list[TopicResponseDTO] = []
 

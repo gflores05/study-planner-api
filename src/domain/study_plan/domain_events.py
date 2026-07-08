@@ -12,6 +12,13 @@ class StudyPlanGenerated(DomainEvent):
 
 
 @dataclass(frozen=True, kw_only=True)
+class StudyPlanErrorReported(DomainEvent):
+  event_name: str = field(default="StudyPlanErrorReported")
+  failed_on: datetime
+  study_plan_id: str
+
+
+@dataclass(frozen=True, kw_only=True)
 class StudyPlanRequested(DomainEvent):
   event_name: str = field(default="StudyPlanRequested")
   study_plan_id: str
