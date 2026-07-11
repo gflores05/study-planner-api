@@ -52,3 +52,4 @@ def map_assessment_status_domain_to_dto(
       return AssessmentStatusDTO.IN_PROGRESS
     case AssessmentStatus.COMPLETED:
       return AssessmentStatusDTO.COMPLETED
+  return AssessmentStatusDTO.UNKNOWN

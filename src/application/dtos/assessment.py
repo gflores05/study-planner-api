@@ -10,6 +10,7 @@ class AssessmentStatusDTO(Enum):
   PENDING = "PENDING"
   IN_PROGRESS = "IN_PROGRESS"
   COMPLETED = "COMPLETED"
+  UNKNOWN = "UNKNOWN"
 
 
 class AssessmentDTO(BaseModel):
