@@ -1,6 +1,8 @@
 from functools import lru_cache
+from typing import Annotated
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -28,6 +30,13 @@ class Settings(BaseSettings):
 
   rabbitmq_prefetch_count: int = 10
   rabbitmq_url: str = "amqp://admin:pass@localhost:5672/"
+
+  allowed_origins: Annotated[list[str], NoDecode] = []
+
+  @field_validator("allowed_origins", mode="before")
+  @classmethod
+  def decode_origins(cls, v: str) -> list[str]:
+    return [origin.strip() for origin in v.split(",")]
 
   @property
   def database_url(self) -> str:

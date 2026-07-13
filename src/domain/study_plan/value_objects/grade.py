@@ -10,7 +10,7 @@ class Grade:
 
   @staticmethod
   def parse(value: int) -> "Result[Grade, ValidationError]":
-    if value < 0 or value > 6:
+    if value < 1 or value > 12:
       return Result.fail(ValidationError("Grade", value=value))
 
     return Result.ok(Grade(value=value))
