@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from enum import Enum
 
 from pydantic import BaseModel
@@ -41,7 +40,6 @@ class AnswerQuestionResponseDTO(BaseModel):
   question_id: str
 
 
-@dataclass
 class AssessmentResponseDTO(BaseModel):
   id: str
   questions: list[QuestionResponseDTO]

@@ -46,7 +46,7 @@ def map_assessment_domain_to_model(domain: Assessment) -> AssessmentModel:
     created_on=domain.created_on,
     modified_on=domain.modified_on,
     version=domain.version,
-    status=str(domain.status),
+    status=domain.status.value,
     score=domain.score.to_nullable(),
     questions=[map_question_domain_to_model(q) for q in domain.questions],
     started_on=domain.started_on.to_nullable(),

@@ -12,9 +12,13 @@ from src.application.dtos.study_plan import (
 )
 from src.application.dtos.sub_topic import SubTopicAIDTO, SubTopicResponseDTO
 from src.application.dtos.topic import TopicAIDTO, TopicResponseDTO
+from src.application.mappers.study_plan_mapper import (
+  map_study_plan_domain_event_to_message,
+)
 from src.application.ports.outbound.ai.ai_agent import AIAgentPort
 from src.application.ports.outbound.ai.prompt_provider import PromptProviderPort
 from src.application.ports.outbound.messaging.event_publisher import EventPublisherPort
+from src.application.ports.outbound.messaging.message import MessageEvent
 from src.application.ports.outbound.repositories.assessment_repository import (
   AssessmentRepository,
 )
@@ -44,6 +48,7 @@ from src.domain.sub_topic.value_objects.sub_topic_title import SubTopicTitle
 from src.domain.topic.topic import AddSubTopicParams, Topic
 from src.domain.topic.value_objects.topic_title import TopicTitle
 from src.domain.value_objects.non_empty_string import NonEmptyString
+from src.shared.domain_event import DomainEvent
 from src.util.date_util import utc_now
 from src.util.result_util import traverse
 
@@ -145,6 +150,11 @@ class GenerateStudyPlanUseCaseAdapter(UseCaseEventPublisher):
     return StudyPlanResponseDTO(
       study_plan_id=str(study_plan.id), topics=topics_response
     )
+
+  def _map_domain_event_to_message(
+    self, domain_event: DomainEvent
+  ) -> MessageEvent | None:
+    return map_study_plan_domain_event_to_message(domain_event)
 
   async def _add_topic_assessment(
     self, topic: Topic, ai_questions: list[QuestionAIDTO], now: datetime

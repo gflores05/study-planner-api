@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from src.domain.assessment.assessment import Assessment
 from src.domain.assessment.value_objects.assessment_id import AssessmentId
@@ -20,7 +21,9 @@ class AssessmentRepository:
   async def get(self, id: AssessmentId) -> Option[Assessment]:
     async with self._db.get_session() as session:
       result = await session.execute(
-        select(AssessmentModel).where(AssessmentModel.id == str(id))
+        select(AssessmentModel)
+        .where(AssessmentModel.id == str(id))
+        .options(selectinload(AssessmentModel.questions))
       )
 
       row = result.scalar_one_or_none()

@@ -7,8 +7,14 @@ from src.infrastructure.adapters.outbound.persistence.mappers.study_plan_mapper 
   map_study_plan_domain_to_model,
   map_study_plan_model_to_domain,
 )
+from src.infrastructure.adapters.outbound.persistence.models.assessment_model import (
+  AssessmentModel,
+)
 from src.infrastructure.adapters.outbound.persistence.models.study_plan_model import (
   StudyPlanModel,
+)
+from src.infrastructure.adapters.outbound.persistence.models.topic_model import (
+  TopicModel,
 )
 from src.infrastructure.config.database import Database
 from src.shared.option import Option
@@ -23,7 +29,12 @@ class StudyPlanRepository:
       result = await session.execute(
         select(StudyPlanModel)
         .where(StudyPlanModel.id == str(id))
-        .options(selectinload(StudyPlanModel.topics))
+        .options(
+          selectinload(StudyPlanModel.topics)
+          .selectinload(TopicModel.assessment)
+          .selectinload(AssessmentModel.questions),
+          selectinload(StudyPlanModel.topics).selectinload(TopicModel.sub_topics),
+        )
       )
 
       row = result.scalar_one_or_none()

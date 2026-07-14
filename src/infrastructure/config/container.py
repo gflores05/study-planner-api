@@ -26,11 +26,16 @@ from src.infrastructure.adapters.outbound.ai.study_plan_prompt_provider import (
   StudyPlanPromptProvider,
 )
 from src.infrastructure.adapters.outbound.messaging.event_consumer import EventConsumer
-from src.infrastructure.adapters.outbound.messaging.event_handlers.study_plan_event_handler import (
-  study_plan_requested_event_handler_factory,
-)
 from src.infrastructure.adapters.outbound.messaging.event_publisher import (
   EventPublisher,
+)
+from src.infrastructure.adapters.outbound.messaging.handlers.study_plan_command_handlers import (
+  generate_study_plan_command_handler_factory,
+  report_study_plan_generated_command_handler_factory,
+)
+from src.infrastructure.adapters.outbound.messaging.handlers.study_plan_event_handlers import (
+  study_plan_generated_event_handler_factory,
+  study_plan_requested_event_handler_factory,
 )
 from src.infrastructure.adapters.outbound.persistence.repositories.assessment_repository import (
   AssessmentRepository,
@@ -47,13 +52,16 @@ from src.infrastructure.adapters.outbound.persistence.repositories.sub_topic_rep
 from src.infrastructure.adapters.outbound.persistence.repositories.topic_repository import (
   TopicRepository,
 )
+from src.infrastructure.adapters.outbound.websockets.connection_manager import (
+  RealtimeConnectionManager,
+)
 from src.infrastructure.config.database import Database
 from src.infrastructure.config.messaging import MessageBroker
 from src.infrastructure.config.settings import Settings
 
 
 class Container(containers.DeclarativeContainer):
-  aaaconfig = providers.Configuration()
+  config = providers.Configuration()
 
   settings = providers.Singleton(Settings)
 
@@ -62,6 +70,8 @@ class Container(containers.DeclarativeContainer):
     database_url=settings.provided.database_url,
     db_echo=settings.provided.database_echo,
   )
+
+  realtime_connection_manager = providers.Singleton(RealtimeConnectionManager)
 
   message_broker = providers.Singleton(
     MessageBroker,
@@ -137,6 +147,21 @@ class Container(containers.DeclarativeContainer):
     assessment_repository=assessment_repository,
   )
 
+  # Event Handlers
   study_plan_requested_event_handler = providers.Callable(
-    study_plan_requested_event_handler_factory, use_case=generate_study_plan_use_case
+    study_plan_requested_event_handler_factory, event_publisher=event_publisher
+  )
+
+  study_plan_generated_event_handler = providers.Callable(
+    study_plan_generated_event_handler_factory, event_publisher=event_publisher
+  )
+
+  # Command Handlers
+  generate_study_plan_command_handler = providers.Callable(
+    generate_study_plan_command_handler_factory, use_case=generate_study_plan_use_case
+  )
+
+  report_study_plan_generated_command_handler = providers.Callable(
+    report_study_plan_generated_command_handler_factory,
+    realtime_connection_manager=realtime_connection_manager,
   )

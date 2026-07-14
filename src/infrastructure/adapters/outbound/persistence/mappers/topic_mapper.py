@@ -15,6 +15,7 @@ from src.infrastructure.adapters.outbound.persistence.mappers.sub_topic_mapper i
 from src.infrastructure.adapters.outbound.persistence.models.topic_model import (
   TopicModel,
 )
+from src.shared.option import Option
 
 
 def map_topic_model_to_domain(model: TopicModel) -> Topic:
@@ -24,7 +25,9 @@ def map_topic_model_to_domain(model: TopicModel) -> Topic:
     modified_on=model.modified_on,
     version=model.version,
     title=TopicTitle.parse(model.title).unwrap_or_raise(),
-    assessment=map_assessment_model_to_domain(model.assessment),
+    assessment=Option.some(map_assessment_model_to_domain(model.assessment))
+    if model.assessment is not None
+    else Option.nothing(),
     sub_topics=[map_sub_topic_model_to_domain(st) for st in model.sub_topics],
     study_plan_id=StudyPlanId.parse(str(model.study_plan_id)).unwrap_or_raise(),
   )

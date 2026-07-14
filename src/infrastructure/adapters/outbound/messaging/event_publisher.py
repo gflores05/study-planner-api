@@ -1,11 +1,9 @@
-import json
 import logging
-from dataclasses import asdict
 from datetime import datetime
 
 from aio_pika import DeliveryMode, Message
 
-from src.shared.domain_event import DomainEvent
+from src.application.ports.outbound.messaging.message import MessageEvent
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +14,7 @@ class EventPublisher:
   def __init__(self, message_broker) -> None:
     self._message_broker = message_broker
 
-  async def publish(self, event: DomainEvent) -> None:
+  async def publish(self, event: MessageEvent) -> None:
     try:
       channel = await self._message_broker.get_channel()
 
@@ -54,9 +52,9 @@ class EventPublisher:
       logger.error(f"Failed to publish event {event.event_name}: {e}")
       raise
 
-  def _serialize(self, event: DomainEvent) -> str:
-    data = asdict(event)  # works with dataclasses
-    return json.dumps(data, default=self._json_serializer)
+  def _serialize(self, event: MessageEvent) -> str:
+    return event.model_dump_json()
+    # return json.dumps(data, default=self._json_serializer)
 
   @staticmethod
   def _json_serializer(obj):

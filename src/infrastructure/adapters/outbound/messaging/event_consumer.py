@@ -13,7 +13,10 @@ class EventConsumer:
   EXCHANGE_NAME = "domain_events"
 
   def __init__(
-    self, queue_name: str, routing_keys: list[str], message_broker: MessageBroker
+    self,
+    queue_name: str,
+    routing_keys: list[str],
+    message_broker: MessageBroker,
   ):
     self._queue_name = queue_name
     self._routing_keys = routing_keys

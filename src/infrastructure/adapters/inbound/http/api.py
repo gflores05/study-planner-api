@@ -13,6 +13,7 @@ from src.infrastructure.adapters.inbound.http.middlewares.study_plan_error_handl
 from src.infrastructure.adapters.inbound.http.routers import (
   assessment_router,
   study_plan_router,
+  websockets_router,
 )
 from src.infrastructure.config.lifespan import lifespan_factory
 
@@ -36,6 +37,7 @@ def create_app(container: containers.DeclarativeContainer) -> FastAPI:
   # Routers
   app.include_router(study_plan_router.router)
   app.include_router(assessment_router.router)
+  app.include_router(websockets_router.router)
 
   # Error Handler
   app.add_exception_handler(StudyPlanError, study_plan_error_handler)

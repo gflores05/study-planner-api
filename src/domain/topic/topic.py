@@ -49,7 +49,7 @@ class Topic(AggregateRoot[TopicId]):
     version: int,
     title: TopicTitle,
     sub_topics: list[SubTopic],
-    assessment: Assessment,
+    assessment: Option[Assessment],
     study_plan_id: StudyPlanId,
   ) -> "Topic":
     return Topic(
@@ -59,7 +59,7 @@ class Topic(AggregateRoot[TopicId]):
       version=version,
       title=title,
       sub_topics=sub_topics,
-      assessment=Option.some(assessment),
+      assessment=assessment,
       study_plan_id=study_plan_id,
     )
 

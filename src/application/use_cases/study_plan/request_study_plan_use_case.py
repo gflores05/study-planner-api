@@ -2,7 +2,11 @@ from src.application.dtos.study_plan import (
   RequestStudyPlanDTO,
   StudyPlanResponseDTO,
 )
+from src.application.mappers.study_plan_mapper import (
+  map_study_plan_domain_event_to_message,
+)
 from src.application.ports.outbound.messaging.event_publisher import EventPublisherPort
+from src.application.ports.outbound.messaging.message import MessageEvent
 from src.application.ports.outbound.repositories.study_plan_repository import (
   StudyPlanRepository,
 )
@@ -11,6 +15,7 @@ from src.application.use_cases.use_case_event_publisher import UseCaseEventPubli
 from src.domain.study_plan.study_plan import StudyPlan
 from src.domain.study_plan.value_objects.grade import Grade
 from src.domain.study_plan.value_objects.subject import Subject
+from src.shared.domain_event import DomainEvent
 from src.util.date_util import utc_now
 
 
@@ -43,3 +48,8 @@ class RequestStudyPlanUseCaseAdapter(UseCaseEventPublisher):
     await self._publish_events(study_plan)
 
     return StudyPlanResponseDTO(study_plan_id=str(study_plan.id), topics=[])
+
+  def _map_domain_event_to_message(
+    self, domain_event: DomainEvent
+  ) -> MessageEvent | None:
+    return map_study_plan_domain_event_to_message(domain_event)

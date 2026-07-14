@@ -23,8 +23,8 @@ class GetStudyPlanUseCaseAdapter:
       )
     )
 
-    study_plan = (await self.study_plan_repository.get(study_plan_id)).get_or_raise(
-      StudyPlanNotFoundError(study_plan_id=id)
-    )
+    study_plan = await self.study_plan_repository.get(study_plan_id)
 
-    return map_study_plan_domain_to_dto(study_plan)
+    return map_study_plan_domain_to_dto(
+      study_plan.get_or_raise(StudyPlanNotFoundError(study_plan_id=id))
+    )
