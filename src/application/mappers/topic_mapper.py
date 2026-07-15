@@ -31,13 +31,15 @@ def map_topic_dto_to_domain(dto: TopicDTO) -> Result[Topic, ValidationError]:
   )
 
 
-def map_topic_domain_to_dto(domain: Topic) -> TopicDTO:
+def map_topic_domain_to_dto(domain: Topic, include_children: bool = True) -> TopicDTO:
   return TopicDTO(
     id=str(domain.id),
     title=str(domain.title),
-    sub_topics=[map_sub_topic_domain_to_dto(st) for st in domain.sub_topics],
+    sub_topics=[map_sub_topic_domain_to_dto(st) for st in domain.sub_topics]
+    if include_children
+    else [],
     assessment=map_assessment_domain_to_dto(domain.assessment.get())
-    if domain.assessment.is_some
+    if include_children and domain.assessment.is_some
     else None,
     study_plan_id=str(domain.study_plan_id),
   )

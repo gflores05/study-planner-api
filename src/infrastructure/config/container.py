@@ -21,6 +21,7 @@ from src.application.use_cases.study_plan.get_study_plan_use_case import (
 from src.application.use_cases.study_plan.request_study_plan_use_case import (
   RequestStudyPlanUseCaseAdapter,
 )
+from src.application.use_cases.topic.get_topic_use_case import GetTopicUseCaseAdapter
 from src.infrastructure.adapters.outbound.ai.ai_agent import AIAgent
 from src.infrastructure.adapters.outbound.ai.study_plan_prompt_provider import (
   StudyPlanPromptProvider,
@@ -145,6 +146,10 @@ class Container(containers.DeclarativeContainer):
     CompleteAssessmentUseCaseAdapter,
     event_publisher=event_publisher,
     assessment_repository=assessment_repository,
+  )
+
+  get_topic_use_case = providers.Factory(
+    GetTopicUseCaseAdapter, topic_repository=topic_repository
   )
 
   # Event Handlers

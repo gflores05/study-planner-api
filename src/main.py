@@ -9,6 +9,7 @@ if __name__ == "src.main":
       "src.infrastructure.config.lifespan",
       "src.infrastructure.adapters.inbound.http.routers.study_plan_router",
       "src.infrastructure.adapters.inbound.http.routers.assessment_router",
+      "src.infrastructure.adapters.inbound.http.routers.topic_router",
       "src.infrastructure.adapters.inbound.http.routers.websockets_router",
     ]
   )

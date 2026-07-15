@@ -18,7 +18,9 @@ from src.infrastructure.adapters.outbound.persistence.models.topic_model import 
 from src.shared.option import Option
 
 
-def map_topic_model_to_domain(model: TopicModel) -> Topic:
+def map_topic_model_to_domain(
+  model: TopicModel, include_children: bool = True
+) -> Topic:
   return Topic.reconstitute(
     id=TopicId.parse(str(model.id)).unwrap_or_raise(),
     created_on=model.created_on,
@@ -26,9 +28,11 @@ def map_topic_model_to_domain(model: TopicModel) -> Topic:
     version=model.version,
     title=TopicTitle.parse(model.title).unwrap_or_raise(),
     assessment=Option.some(map_assessment_model_to_domain(model.assessment))
-    if model.assessment is not None
+    if include_children and model.assessment is not None
     else Option.nothing(),
-    sub_topics=[map_sub_topic_model_to_domain(st) for st in model.sub_topics],
+    sub_topics=[map_sub_topic_model_to_domain(st) for st in model.sub_topics]
+    if include_children
+    else [],
     study_plan_id=StudyPlanId.parse(str(model.study_plan_id)).unwrap_or_raise(),
   )
 
