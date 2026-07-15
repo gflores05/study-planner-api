@@ -48,3 +48,4 @@ class StudyPlanDTO(BaseModel):
   grade: int
   topics: list[TopicDTO]
   status: StudyPlanStatusDTO
+  created_on: str
