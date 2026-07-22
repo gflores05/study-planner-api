@@ -32,13 +32,13 @@ router = APIRouter(prefix="/v1/assessment", tags=["assessment"])
 async def get_assessment(
   id: str,
   use_case: Annotated[
-    GetAssessmentUseCaseAdapter, Depends(Provide[Container.get_assessment_use_Case])
+    GetAssessmentUseCaseAdapter, Depends(Provide[Container.get_assessment_use_case])
   ],
 ) -> AssessmentDTO:
   return await use_case.execute(id=id)
 
 
-@router.post("{id}/start", response_model=StartAssessmentResponseDTO)
+@router.post("/{id}/start", response_model=StartAssessmentResponseDTO)
 @inject
 async def start_assessment(
   id: str,
@@ -49,7 +49,7 @@ async def start_assessment(
   return await use_case.execute(id=id)
 
 
-@router.post("{id}/answer", response_model=AnswerQuestionResponseDTO)
+@router.post("/{id}/answer", response_model=AnswerQuestionResponseDTO)
 @inject
 async def answer_question(
   id: str,
@@ -61,7 +61,7 @@ async def answer_question(
   return await use_case.execute(id, body)
 
 
-@router.post("{id}/complete", response_model=CompleteAssessmentResponseDTO)
+@router.post("/{id}/complete", response_model=CompleteAssessmentResponseDTO)
 @inject
 async def complete_assessment(
   id: str,

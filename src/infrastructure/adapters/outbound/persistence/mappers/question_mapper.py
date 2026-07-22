@@ -24,7 +24,11 @@ def map_question_model_to_domain(model: QuestionModel) -> Question:
     text=QuestionText.parse(model.text).unwrap_or_raise(),
     options=[map_answer_model_to_domain(o) for o in model.options],
     answer=AnswerOption.parse(model.answer).unwrap_or_raise(),
-    selected_answer=Option.of(model.selected_answer),
+    selected_answer=Option.of(
+      AnswerOption.parse(model.selected_answer).unwrap_or_raise()
+      if model.selected_answer is not None
+      else None
+    ),
     assessment_id=AssessmentId.parse(str(model.assessment_id)).unwrap_or_raise(),
   )
 

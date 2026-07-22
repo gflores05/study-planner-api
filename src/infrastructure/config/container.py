@@ -125,7 +125,7 @@ class Container(containers.DeclarativeContainer):
     GetStudyPlanUseCaseAdapter, study_plan_repository=study_plan_repository
   )
 
-  get_assessment_use_Case = providers.Factory(
+  get_assessment_use_case = providers.Factory(
     GetAssessmentUseCaseAdapter, assessment_repository=assessment_repository
   )
 
