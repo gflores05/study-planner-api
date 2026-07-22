@@ -42,4 +42,5 @@ def map_topic_domain_to_dto(domain: Topic, include_children: bool = True) -> Top
     if include_children and domain.assessment.is_some
     else None,
     study_plan_id=str(domain.study_plan_id),
+    created_on=domain.created_on.isoformat(),
   )

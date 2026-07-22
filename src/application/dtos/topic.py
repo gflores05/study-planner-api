@@ -17,6 +17,7 @@ class TopicDTO(BaseModel):
   sub_topics: list[SubTopicDTO]
   assessment: AssessmentDTO | None
   study_plan_id: str
+  created_on: str
 
 
 class TopicAIDTO(BaseModel):
