@@ -128,7 +128,11 @@ class Assessment(AggregateRoot[AssessmentId]):
 
     self.completed_on = Option.some(completed_on)
     self.score = Option.some(
-      len([question for question in self.questions if question.is_correct])
+      (
+        len([question for question in self.questions if question.is_correct])
+        / len(self.questions)
+      )
+      * 100
     )
     self.status = AssessmentStatus.COMPLETED
     self.add_domain_event(
