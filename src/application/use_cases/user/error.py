@@ -16,6 +16,12 @@ class UserNotFoundError(UserError):
     self.user_id = user_id
 
 
+class UserAlreadyExists(UserError):
+  def __init__(self, external_id: str):
+    super().__init__("UserAlreadyExists")
+    self.email = external_id
+
+
 class UserUnknownError(UserError):
   def __init__(self):
     super().__init__("UserUnknownError")
