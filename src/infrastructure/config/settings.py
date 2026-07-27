@@ -28,8 +28,12 @@ class Settings(BaseSettings):
   debug: bool = False
   app_name: str = "Study Planner"
 
+  # RabbitMQ
   rabbitmq_prefetch_count: int = 10
   rabbitmq_url: str = "amqp://admin:pass@localhost:5672/"
+
+  # Auth0
+  auth0_webhook_secret: str = "webhooksecret"
 
   allowed_origins: Annotated[list[str], NoDecode] = []
 

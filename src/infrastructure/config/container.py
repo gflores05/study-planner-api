@@ -22,6 +22,7 @@ from src.application.use_cases.study_plan.request_study_plan_use_case import (
   RequestStudyPlanUseCaseAdapter,
 )
 from src.application.use_cases.topic.get_topic_use_case import GetTopicUseCaseAdapter
+from src.application.use_cases.user.create_user_use_case import CreateUserUseCaseAdapter
 from src.infrastructure.adapters.outbound.ai.ai_agent import AIAgent
 from src.infrastructure.adapters.outbound.ai.study_plan_prompt_provider import (
   StudyPlanPromptProvider,
@@ -52,6 +53,9 @@ from src.infrastructure.adapters.outbound.persistence.repositories.sub_topic_rep
 )
 from src.infrastructure.adapters.outbound.persistence.repositories.topic_repository import (
   TopicRepository,
+)
+from src.infrastructure.adapters.outbound.persistence.repositories.user_repository import (
+  UserRepository,
 )
 from src.infrastructure.adapters.outbound.websockets.connection_manager import (
   RealtimeConnectionManager,
@@ -94,6 +98,7 @@ class Container(containers.DeclarativeContainer):
   sub_topic_repository = providers.Factory(SubTopicRepository, db=db)
   assessment_repository = providers.Factory(AssessmentRepository, db=db)
   question_repository = providers.Factory(QuestionRepository, db=db)
+  user_repository = providers.Factory(UserRepository, db=db)
 
   ai_agent = providers.Factory(
     AIAgent,
@@ -150,6 +155,10 @@ class Container(containers.DeclarativeContainer):
 
   get_topic_use_case = providers.Factory(
     GetTopicUseCaseAdapter, topic_repository=topic_repository
+  )
+
+  create_user_use_case = providers.Factory(
+    CreateUserUseCaseAdapter, user_repository=user_repository
   )
 
   # Event Handlers
