@@ -33,7 +33,7 @@ async def report_study_plan_generated_command_handler_factory(
     }
 
     # This will be a user_id when we have an auth
-    user_id = command.study_plan_id
+    user_id = command.reported_by_user_id
 
     if user_id and realtime_connection_manager.is_connected(user_id):
       await realtime_connection_manager.send_to_user(user_id, message)

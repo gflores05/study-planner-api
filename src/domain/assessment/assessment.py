@@ -21,6 +21,7 @@ from src.domain.question.question import Question
 from src.domain.question.value_objects.question_id import QuestionId
 from src.domain.question.value_objects.question_text import QuestionText
 from src.domain.topic.value_objects.topic_id import TopicId
+from src.domain.user.value_objects.user_id import UserId
 from src.shared.aggregate_root import AggregateRoot
 from src.shared.option import Option
 from src.shared.result import Result, Unit
@@ -48,9 +49,12 @@ class Assessment(AggregateRoot[AssessmentId]):
   started_on: Option[datetime]
   completed_on: Option[datetime]
   topic_id: TopicId
+  created_by_user_id: UserId
 
   @staticmethod
-  def create(questions: list[Question], topic_id: TopicId) -> "Assessment":
+  def create(
+    questions: list[Question], topic_id: TopicId, created_by_user_id: UserId
+  ) -> "Assessment":
     return Assessment(
       id=AssessmentId.create(),
       status=AssessmentStatus.PENDING,
@@ -59,6 +63,7 @@ class Assessment(AggregateRoot[AssessmentId]):
       started_on=Option.some(datetime.now(UTC)),
       completed_on=Option.some(datetime.now(UTC)),
       topic_id=topic_id,
+      created_by_user_id=created_by_user_id,
     )
 
   @staticmethod
@@ -73,6 +78,7 @@ class Assessment(AggregateRoot[AssessmentId]):
     started_on: Option[datetime],
     completed_on: Option[datetime],
     topic_id: TopicId,
+    created_by_user_id: UserId,
   ) -> "Assessment":
     return Assessment(
       id=id,
@@ -85,6 +91,7 @@ class Assessment(AggregateRoot[AssessmentId]):
       started_on=started_on,
       completed_on=completed_on,
       topic_id=topic_id,
+      created_by_user_id=created_by_user_id,
     )
 
   def add_question(self, params: AddQuestionParam) -> Question:
@@ -93,6 +100,7 @@ class Assessment(AggregateRoot[AssessmentId]):
       options=params.options,
       answer=params.answer,
       assessment_id=self.id,
+      created_by_user_id=self.created_by_user_id,
     )
     self.questions.append(question)
 

@@ -7,6 +7,7 @@ from src.domain.assessment.value_objects.assessment_id import AssessmentId
 from src.domain.question.domain_events import AnswerSelected
 from src.domain.question.value_objects.question_id import QuestionId
 from src.domain.question.value_objects.question_text import QuestionText
+from src.domain.user.value_objects.user_id import UserId
 from src.shared.aggregate_root import AggregateRoot
 from src.shared.option import Option
 
@@ -18,6 +19,7 @@ class Question(AggregateRoot[QuestionId]):
   answer: AnswerOption
   selected_answer: Option[AnswerOption]
   assessment_id: AssessmentId
+  created_by_user_id: UserId
 
   @staticmethod
   def create(
@@ -25,6 +27,7 @@ class Question(AggregateRoot[QuestionId]):
     options: list[Answer],
     answer: AnswerOption,
     assessment_id: AssessmentId,
+    created_by_user_id: UserId,
   ) -> "Question":
     return Question(
       id=QuestionId.create(),
@@ -33,6 +36,7 @@ class Question(AggregateRoot[QuestionId]):
       answer=answer,
       selected_answer=Option.nothing(),
       assessment_id=assessment_id,
+      created_by_user_id=created_by_user_id,
     )
 
   @staticmethod
@@ -46,6 +50,7 @@ class Question(AggregateRoot[QuestionId]):
     answer: AnswerOption,
     selected_answer: Option[AnswerOption],
     assessment_id: AssessmentId,
+    created_by_user_id: UserId,
   ) -> "Question":
     return Question(
       id=id,
@@ -57,6 +62,7 @@ class Question(AggregateRoot[QuestionId]):
       answer=answer,
       selected_answer=selected_answer,
       assessment_id=assessment_id,
+      created_by_user_id=created_by_user_id,
     )
 
   @property

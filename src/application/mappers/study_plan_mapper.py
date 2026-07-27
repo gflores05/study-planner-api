@@ -19,6 +19,7 @@ def map_study_plan_domain_to_dto(domain: StudyPlan) -> StudyPlanDTO:
     grade=int(domain.grade),
     status=study_plan_status_domain_to_dto(domain.status),
     created_on=domain.created_on.isoformat(),
+    created_by_user_id=str(domain.created_by_user_id),
   )
 
 
@@ -45,12 +46,14 @@ def map_study_plan_domain_event_to_message(
         event_id=str(domain_event.event_id),
         occurred_on=domain_event.occurred_on,
         study_plan_id=domain_event.study_plan_id,
+        requested_by_user_id=domain_event.requested_by_user_id,
       )
     case StudyPlanGenerated():
       return StudyPlanGeneratedEventMessage(
         event_id=str(domain_event.event_id),
         occurred_on=domain_event.occurred_on,
         study_plan_id=domain_event.study_plan_id,
+        generated_by_user_id=domain_event.generated_by_user_id,
       )
     case _:
       return None

@@ -20,6 +20,7 @@ class AssessmentDTO(BaseModel):
   started_on: str | None
   completed_on: str | None
   topic_id: str
+  created_by_user_id: str
 
 
 class AnswerQuestionRequestDTO(BaseModel):

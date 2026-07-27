@@ -8,6 +8,7 @@ from src.domain.sub_topic.value_objects.sub_topic_title import SubTopicTitle
 from src.domain.topic.domain_events import TopicAssessmentGenerated
 from src.domain.topic.value_objects.topic_id import TopicId
 from src.domain.topic.value_objects.topic_title import TopicTitle
+from src.domain.user.value_objects.user_id import UserId
 from src.domain.value_objects.non_empty_string import NonEmptyString
 from src.shared.aggregate_root import AggregateRoot
 from src.shared.option import Option
@@ -25,12 +26,14 @@ class Topic(AggregateRoot[TopicId]):
   sub_topics: list[SubTopic]
   assessment: Option[Assessment]
   study_plan_id: StudyPlanId
+  created_by_user_id: UserId
 
   @staticmethod
   def create(
     title: TopicTitle,
     sub_topics: list[SubTopic],
     study_plan_id: StudyPlanId,
+    created_by_user_id: UserId,
     assessment: Option[Assessment] = Option.nothing(),
   ) -> "Topic":
     return Topic(
@@ -39,6 +42,7 @@ class Topic(AggregateRoot[TopicId]):
       sub_topics=sub_topics,
       assessment=assessment,
       study_plan_id=study_plan_id,
+      created_by_user_id=created_by_user_id,
     )
 
   @staticmethod
@@ -51,6 +55,7 @@ class Topic(AggregateRoot[TopicId]):
     sub_topics: list[SubTopic],
     assessment: Option[Assessment],
     study_plan_id: StudyPlanId,
+    created_by_user_id: UserId,
   ) -> "Topic":
     return Topic(
       id=id,
@@ -61,11 +66,15 @@ class Topic(AggregateRoot[TopicId]):
       sub_topics=sub_topics,
       assessment=assessment,
       study_plan_id=study_plan_id,
+      created_by_user_id=created_by_user_id,
     )
 
   def add_sub_topic(self, params: AddSubTopicParams) -> SubTopic:
     sub_topic = SubTopic.create(
-      title=params.title, study_material=params.study_material, topic_id=self.id
+      title=params.title,
+      study_material=params.study_material,
+      topic_id=self.id,
+      created_by_user_id=self.created_by_user_id,
     )
 
     self.sub_topics.append(sub_topic)
@@ -74,7 +83,11 @@ class Topic(AggregateRoot[TopicId]):
 
   def generate_assessment(self, generated_on: datetime) -> Assessment:
     self.modified_on = generated_on
-    self.assessment = Option.some(Assessment.create(questions=[], topic_id=self.id))
+    self.assessment = Option.some(
+      Assessment.create(
+        questions=[], topic_id=self.id, created_by_user_id=self.created_by_user_id
+      )
+    )
 
     self.add_domain_event(
       TopicAssessmentGenerated(

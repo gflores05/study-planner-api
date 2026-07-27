@@ -4,6 +4,7 @@ from src.domain.sub_topic.sub_topic import SubTopic
 from src.domain.sub_topic.value_objects.sub_topic_id import SubTopicId
 from src.domain.sub_topic.value_objects.sub_topic_title import SubTopicTitle
 from src.domain.topic.value_objects.topic_id import TopicId
+from src.domain.user.value_objects.user_id import UserId
 from src.domain.value_objects.non_empty_string import NonEmptyString
 from src.infrastructure.adapters.outbound.persistence.models.sub_topic_model import (
   SubTopicModel,
@@ -21,6 +22,7 @@ def map_sub_topic_model_to_domain(model: SubTopicModel) -> SubTopic:
       NonEmptyString.parse(sm).unwrap_or_raise() for sm in model.study_material
     ],
     topic_id=TopicId.parse(str(model.topic_id)).unwrap_or_raise(),
+    created_by_user_id=UserId.parse(str(model.created_by_user_id)).unwrap_or_raise(),
   )
 
 
@@ -33,4 +35,5 @@ def map_sub_topic_domain_to_model(domain: SubTopic) -> SubTopicModel:
     title=str(domain.title),
     study_material=[str(sm) for sm in domain.study_material],
     topic_id=uuid.UUID(str(domain.topic_id)),
+    created_by_user_id=uuid.UUID(str(domain.created_by_user_id)),
   )

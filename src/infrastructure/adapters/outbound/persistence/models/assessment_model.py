@@ -19,3 +19,6 @@ class AssessmentModel(DbModel):
   completed_on: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
   topic_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("topic.id"), nullable=False)
   questions: Mapped[list[QuestionModel]] = relationship(backref="assessment")
+  created_by_user_id: Mapped[uuid.UUID] = mapped_column(
+    ForeignKey("user.id"), nullable=False
+  )

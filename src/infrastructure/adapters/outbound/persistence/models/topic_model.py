@@ -21,3 +21,6 @@ class TopicModel(DbModel):
   )
   sub_topics: Mapped[list[SubTopicModel]] = relationship(backref="topic")
   assessment: Mapped[AssessmentModel] = relationship(backref="topic")
+  created_by_user_id: Mapped[uuid.UUID] = mapped_column(
+    ForeignKey("user.id"), nullable=False
+  )

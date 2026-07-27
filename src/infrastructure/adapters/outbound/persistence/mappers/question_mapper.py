@@ -7,6 +7,7 @@ from src.domain.assessment.value_objects.assessment_id import AssessmentId
 from src.domain.question.question import Question
 from src.domain.question.value_objects.question_id import QuestionId
 from src.domain.question.value_objects.question_text import QuestionText
+from src.domain.user.value_objects.user_id import UserId
 from src.domain.value_objects.non_empty_string import NonEmptyString
 from src.infrastructure.adapters.outbound.persistence.models.question_model import (
   AnswerModel,
@@ -30,6 +31,7 @@ def map_question_model_to_domain(model: QuestionModel) -> Question:
       else None
     ),
     assessment_id=AssessmentId.parse(str(model.assessment_id)).unwrap_or_raise(),
+    created_by_user_id=UserId.parse(str(model.created_by_user_id)).unwrap_or_raise(),
   )
 
 
@@ -54,6 +56,7 @@ def map_question_domain_to_model(domain: Question) -> QuestionModel:
     if domain.selected_answer.is_some
     else None,
     assessment_id=str(domain.assessment_id),
+    created_by_user_id=uuid.UUID(str(domain.created_by_user_id)),
   )
 
 

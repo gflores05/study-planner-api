@@ -4,6 +4,7 @@ from src.domain.study_plan.value_objects.study_plan_id import StudyPlanId
 from src.domain.topic.topic import Topic
 from src.domain.topic.value_objects.topic_id import TopicId
 from src.domain.topic.value_objects.topic_title import TopicTitle
+from src.domain.user.value_objects.user_id import UserId
 from src.infrastructure.adapters.outbound.persistence.mappers.assessment_mapper import (
   map_assessment_domain_to_model,
   map_assessment_model_to_domain,
@@ -34,6 +35,7 @@ def map_topic_model_to_domain(
     if include_children
     else [],
     study_plan_id=StudyPlanId.parse(str(model.study_plan_id)).unwrap_or_raise(),
+    created_by_user_id=UserId.parse(str(model.created_by_user_id)).unwrap_or_raise(),
   )
 
 
@@ -49,4 +51,5 @@ def map_topic_domain_to_model(domain: Topic) -> TopicModel:
     else None,
     sub_topics=[map_sub_topic_domain_to_model(st) for st in domain.sub_topics],
     study_plan_id=uuid.UUID(str(domain.study_plan_id)),
+    created_by_user_id=uuid.UUID(str(domain.created_by_user_id)),
   )

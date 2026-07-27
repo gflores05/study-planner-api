@@ -18,6 +18,7 @@ class TopicDTO(BaseModel):
   assessment: AssessmentDTO | None
   study_plan_id: str
   created_on: str
+  created_by_user_id: str
 
 
 class TopicAIDTO(BaseModel):

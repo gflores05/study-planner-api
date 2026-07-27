@@ -15,6 +15,7 @@ from src.application.use_cases.use_case_event_publisher import UseCaseEventPubli
 from src.domain.study_plan.study_plan import StudyPlan
 from src.domain.study_plan.value_objects.grade import Grade
 from src.domain.study_plan.value_objects.subject import Subject
+from src.domain.user.value_objects.user_id import UserId
 from src.shared.domain_event import DomainEvent
 from src.util.date_util import utc_now
 
@@ -33,6 +34,7 @@ class RequestStudyPlanUseCaseAdapter(UseCaseEventPublisher):
       subject=Subject.parse(dto.subject).unwrap_or_raise(),
       level=dto.level,
       grade=Grade.parse(dto.grade).unwrap_or_raise(),
+      created_by_user_id=UserId.parse(dto.requested_by_user_id).unwrap_or_raise(),
     )
 
     study_plan.request(utc_now()).unwrap_or_map_and_raise(

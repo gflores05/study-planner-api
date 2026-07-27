@@ -7,6 +7,7 @@ from src.domain.answer.value_objects.answer_option import AnswerOption
 from src.domain.assessment.value_objects.assessment_id import AssessmentId
 from src.domain.question.question import Question
 from src.domain.question.value_objects.question_text import QuestionText
+from src.domain.user.value_objects.user_id import UserId
 from src.shared.result import Result
 from src.shared.validation_error import ValidationError
 from src.util.result_util import traverse
@@ -21,6 +22,7 @@ def map_question_dto_to_domain(dto: QuestionDTO) -> Result[Question, ValidationE
       ).unwrap_or_raise(),
       answer=AnswerOption.parse(dto.answer).unwrap_or_raise(),
       assessment_id=AssessmentId.parse(dto.assessment_id).unwrap_or_raise(),
+      created_by_user_id=UserId.parse(dto.created_by_user_id).unwrap_or_raise(),
     )
   )
 
@@ -35,4 +37,5 @@ def map_question_domain_to_dto(domain: Question) -> QuestionDTO:
     if domain.selected_answer.is_some
     else None,
     assessment_id=str(domain.assessment_id),
+    created_by_user_id=str(domain.created_by_user_id),
   )

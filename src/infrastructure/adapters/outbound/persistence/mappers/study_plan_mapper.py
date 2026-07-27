@@ -4,6 +4,7 @@ from src.domain.study_plan.study_plan import StudyPlan, StudyPlanStatus
 from src.domain.study_plan.value_objects.grade import Grade
 from src.domain.study_plan.value_objects.study_plan_id import StudyPlanId
 from src.domain.study_plan.value_objects.subject import Subject
+from src.domain.user.value_objects.user_id import UserId
 from src.infrastructure.adapters.outbound.persistence.mappers.topic_mapper import (
   map_topic_model_to_domain,
 )
@@ -23,6 +24,7 @@ def map_study_plan_model_to_domain(model: StudyPlanModel) -> StudyPlan:
     status=map_db_study_plan_status_to_domain(model.status),
     topics=[map_topic_model_to_domain(t) for t in model.topics],
     grade=Grade.parse(model.grade).unwrap_or_raise(),
+    created_by_user_id=UserId.parse(str(model.created_by_user_id)).unwrap_or_raise(),
   )
 
 
@@ -50,6 +52,7 @@ def map_study_plan_domain_to_model(domain: StudyPlan) -> StudyPlanModel:
     level=domain.level,
     status=map_domain_study_plan_status_to_db(domain.status),
     grade=int(domain.grade),
+    created_by_user_id=uuid.UUID(str(domain.created_by_user_id)),
   )
 
 

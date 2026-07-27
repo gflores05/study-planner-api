@@ -18,6 +18,7 @@ async def study_plan_requested_event_handler_factory(
         event_id=event.event_id,
         occurred_on=event.occurred_on,
         study_plan_id=event.study_plan_id,
+        generated_by_user_id=event.requested_by_user_id,
       )
     )
 
@@ -35,6 +36,7 @@ async def study_plan_generated_event_handler_factory(
         event_id=event.event_id,
         occurred_on=event.occurred_on,
         study_plan_id=event.study_plan_id,
+        reported_by_user_id=event.generated_by_user_id,
       )
     )
 

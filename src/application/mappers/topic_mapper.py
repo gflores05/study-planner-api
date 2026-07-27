@@ -10,6 +10,7 @@ from src.application.mappers.sub_topic_mapper import (
 from src.domain.study_plan.value_objects.study_plan_id import StudyPlanId
 from src.domain.topic.topic import Topic
 from src.domain.topic.value_objects.topic_title import TopicTitle
+from src.domain.user.value_objects.user_id import UserId
 from src.shared.option import Option
 from src.shared.result import Result
 from src.shared.validation_error import ValidationError
@@ -27,6 +28,7 @@ def map_topic_dto_to_domain(dto: TopicDTO) -> Result[Topic, ValidationError]:
       if dto.assessment is not None
       else Option.nothing(),
       study_plan_id=StudyPlanId.parse(dto.study_plan_id).unwrap_or_raise(),
+      created_by_user_id=UserId.parse(dto.created_by_user_id).unwrap_or_raise(),
     )
   )
 
@@ -43,4 +45,5 @@ def map_topic_domain_to_dto(domain: Topic, include_children: bool = True) -> Top
     else None,
     study_plan_id=str(domain.study_plan_id),
     created_on=domain.created_on.isoformat(),
+    created_by_user_id=str(domain.created_by_user_id),
   )

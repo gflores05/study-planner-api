@@ -3,6 +3,7 @@ import uuid
 from src.domain.assessment.assessment import Assessment, AssessmentStatus
 from src.domain.assessment.value_objects.assessment_id import AssessmentId
 from src.domain.topic.value_objects.topic_id import TopicId
+from src.domain.user.value_objects.user_id import UserId
 from src.infrastructure.adapters.outbound.persistence.mappers.question_mapper import (
   map_question_domain_to_model,
   map_question_model_to_domain,
@@ -25,6 +26,7 @@ def map_assessment_model_to_domain(model: AssessmentModel) -> Assessment:
     started_on=Option.of(model.started_on),
     completed_on=Option.of(model.completed_on),
     topic_id=TopicId.parse(str(model.topic_id)).unwrap_or_raise(),
+    created_by_user_id=UserId.parse(str(model.created_by_user_id)).unwrap_or_raise(),
   )
 
 
@@ -52,4 +54,5 @@ def map_assessment_domain_to_model(domain: Assessment) -> AssessmentModel:
     started_on=domain.started_on.to_nullable(),
     completed_on=domain.completed_on.to_nullable(),
     topic_id=uuid.UUID(str(domain.topic_id)),
+    created_by_user_id=uuid.UUID(str(domain.created_by_user_id)),
   )

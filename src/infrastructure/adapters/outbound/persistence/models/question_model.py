@@ -29,3 +29,6 @@ class QuestionModel(DbModel):
   assessment_id: Mapped[uuid.UUID] = mapped_column(
     ForeignKey("assessment.id"), nullable=False
   )
+  created_by_user_id: Mapped[uuid.UUID] = mapped_column(
+    ForeignKey("user.id"), nullable=False
+  )

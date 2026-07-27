@@ -13,3 +13,6 @@ class SubTopicModel(DbModel):
   title: Mapped[str] = mapped_column(String(100), nullable=False)
   study_material: Mapped[list[str]] = mapped_column(JSONB, nullable=False)
   topic_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("topic.id"), nullable=False)
+  created_by_user_id: Mapped[uuid.UUID] = mapped_column(
+    ForeignKey("user.id"), nullable=False
+  )

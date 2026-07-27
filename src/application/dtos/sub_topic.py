@@ -8,6 +8,7 @@ class SubTopicDTO(BaseModel):
   title: str
   study_material: list[str]
   topic_id: str
+  created_by_user_id: str
 
 
 class SubTopicAIDTO(BaseModel):

@@ -13,6 +13,7 @@ from src.domain.study_plan.value_objects.study_plan_id import StudyPlanId
 from src.domain.study_plan.value_objects.subject import Subject
 from src.domain.topic.topic import Topic
 from src.domain.topic.value_objects.topic_title import TopicTitle
+from src.domain.user.value_objects.user_id import UserId
 from src.shared.aggregate_root import AggregateRoot
 from src.shared.result import Result, Unit
 
@@ -51,9 +52,12 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
   topics: list[Topic]
   grade: Grade
   status: StudyPlanStatus
+  created_by_user_id: UserId
 
   @staticmethod
-  def create(subject: Subject, level: StudyPlanLevel, grade: Grade) -> "StudyPlan":
+  def create(
+    subject: Subject, level: StudyPlanLevel, grade: Grade, created_by_user_id: UserId
+  ) -> "StudyPlan":
     return StudyPlan(
       id=StudyPlanId.create(),
       subject=subject,
@@ -61,6 +65,7 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
       level=level,
       status=StudyPlanStatus.PENDING,
       grade=grade,
+      created_by_user_id=created_by_user_id,
     )
 
   @staticmethod
@@ -74,6 +79,7 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
     topics: list[Topic],
     status: StudyPlanStatus,
     grade: Grade,
+    created_by_user_id: UserId,
   ) -> "StudyPlan":
     return StudyPlan(
       id=id,
@@ -85,6 +91,7 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
       topics=topics,
       status=status,
       grade=grade,
+      created_by_user_id=created_by_user_id,
     )
 
   def request(self, requested_on: datetime) -> Result[Unit, StudyPlanProblem]:
@@ -100,7 +107,11 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
     self.status = StudyPlanStatus.GENERATING
 
     self.add_domain_event(
-      StudyPlanRequested(study_plan_id=str(self.id), requested_on=requested_on)
+      StudyPlanRequested(
+        study_plan_id=str(self.id),
+        requested_on=requested_on,
+        requested_by_user_id=str(self.created_by_user_id),
+      )
     )
 
     return Result.ok(Unit)
@@ -110,6 +121,7 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
       title=params.title,
       sub_topics=[],
       study_plan_id=self.id,
+      created_by_user_id=self.created_by_user_id,
     )
     self.topics.append(topic)
 
@@ -130,7 +142,11 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
     self.modified_on = generated_on
     self.status = StudyPlanStatus.COMPLETED
     self.add_domain_event(
-      StudyPlanGenerated(study_plan_id=str(self.id), generated_on=generated_on)
+      StudyPlanGenerated(
+        study_plan_id=str(self.id),
+        generated_on=generated_on,
+        generated_by_user_id=str(self.created_by_user_id),
+      )
     )
 
     return Result.ok(Unit)

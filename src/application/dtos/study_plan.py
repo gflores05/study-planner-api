@@ -24,6 +24,7 @@ class RequestStudyPlanDTO:
   subject: str
   level: StudyPlanLevelDto
   grade: int
+  requested_by_user_id: str
 
 
 @dataclass
@@ -49,3 +50,4 @@ class StudyPlanDTO(BaseModel):
   topics: list[TopicDTO]
   status: StudyPlanStatusDTO
   created_on: str
+  created_by_user_id: str

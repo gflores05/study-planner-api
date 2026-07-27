@@ -12,6 +12,7 @@ class QuestionDTO(BaseModel):
   answer: str
   selected_answer: str | None
   assessment_id: str
+  created_by_user_id: str
 
 
 class QuestionAIDTO(BaseModel):

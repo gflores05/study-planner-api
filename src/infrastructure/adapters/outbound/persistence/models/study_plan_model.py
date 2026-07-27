@@ -1,6 +1,7 @@
+import uuid
 from typing import Literal
 
-from sqlalchemy import Integer, String
+from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.infrastructure.adapters.outbound.persistence.models.topic_model import (
@@ -21,3 +22,6 @@ class StudyPlanModel(DbModel):
   status: Mapped[str] = mapped_column(String(16), nullable=False)
   grade: Mapped[int] = mapped_column(Integer, nullable=False)
   topics: Mapped[list[TopicModel]] = relationship(backref="study_plan")
+  created_by_user_id: Mapped[uuid.UUID] = mapped_column(
+    ForeignKey("user.id"), nullable=False
+  )

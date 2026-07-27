@@ -62,7 +62,10 @@ async def request_study_plan(
 ) -> RequestStudyPlanResponse:
   dto = await use_case.execute(
     dto=RequestStudyPlanDTO(
-      subject=body.subject, level=map_level(body.level), grade=body.grade
+      subject=body.subject,
+      level=map_level(body.level),
+      grade=body.grade,
+      requested_by_user_id="07753896-7b71-46bd-a773-11a7c469771d",
     )
   )
 

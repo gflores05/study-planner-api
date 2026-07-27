@@ -39,6 +39,9 @@ from src.infrastructure.adapters.outbound.messaging.handlers.study_plan_event_ha
   study_plan_generated_event_handler_factory,
   study_plan_requested_event_handler_factory,
 )
+from src.infrastructure.adapters.outbound.persistence.lookups.user_lookup import (
+  UserLookupAdapter,
+)
 from src.infrastructure.adapters.outbound.persistence.repositories.assessment_repository import (
   AssessmentRepository,
 )
@@ -100,6 +103,8 @@ class Container(containers.DeclarativeContainer):
   question_repository = providers.Factory(QuestionRepository, db=db)
   user_repository = providers.Factory(UserRepository, db=db)
 
+  user_lookup = providers.Factory(UserLookupAdapter, db=db)
+
   ai_agent = providers.Factory(
     AIAgent,
     google_agent_model=settings.provided.google_agent_model,
@@ -158,7 +163,7 @@ class Container(containers.DeclarativeContainer):
   )
 
   create_user_use_case = providers.Factory(
-    CreateUserUseCaseAdapter, user_repository=user_repository
+    CreateUserUseCaseAdapter, user_repository=user_repository, user_lookup=user_lookup
   )
 
   # Event Handlers
