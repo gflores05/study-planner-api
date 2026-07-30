@@ -1,5 +1,6 @@
 import uuid
 
+from src.application.use_cases.user.error import UserInvalidInputError
 from src.domain.user.user import User, UserStatus
 from src.domain.user.value_objects.email import Email
 from src.domain.user.value_objects.external_id import ExternalId
@@ -36,7 +37,9 @@ def map_user_domain_to_model(domain: User) -> UserModel:
     external_id=str(domain.external_id),
     email=str(domain.email),
     name=str(domain.name),
-    picture=str(domain.picture),
+    picture=str(domain.picture.get_or_raise(UserInvalidInputError("", "picture")))
+    if domain.picture.is_some
+    else None,
     provider=str(domain.provider),
     status=domain.status.value,
   )

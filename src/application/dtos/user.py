@@ -11,3 +11,10 @@ class CreateUserRequestDTO(BaseModel):
 
 class CreateUserResponseDTO(BaseModel):
   id: str
+
+
+class UserDTO(BaseModel):
+  id: str
+  email: str
+  name: str
+  picture: str | None

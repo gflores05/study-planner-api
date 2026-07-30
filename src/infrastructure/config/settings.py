@@ -34,6 +34,8 @@ class Settings(BaseSettings):
 
   # Auth0
   auth0_webhook_secret: str = "webhooksecret"
+  auth0_domain: str = "mydomain"
+  auth0_audience: str = "myaudience"
 
   allowed_origins: Annotated[list[str], NoDecode] = []
 

@@ -15,6 +15,8 @@ from src.application.use_cases.study_plan.get_study_plan_use_case import (
 from src.application.use_cases.study_plan.request_study_plan_use_case import (
   RequestStudyPlanUseCaseAdapter,
 )
+from src.domain.user.user import User
+from src.infrastructure.adapters.outbound.auth.user_context import get_user_context
 from src.infrastructure.config.container import Container
 
 
@@ -59,13 +61,14 @@ async def request_study_plan(
     RequestStudyPlanUseCaseAdapter,
     Depends(Provide[Container.request_study_plan_use_case]),
   ],
+  user: User = Depends(get_user_context),
 ) -> RequestStudyPlanResponse:
   dto = await use_case.execute(
     dto=RequestStudyPlanDTO(
       subject=body.subject,
       level=map_level(body.level),
       grade=body.grade,
-      requested_by_user_id="07753896-7b71-46bd-a773-11a7c469771d",
+      requested_by_user_id=str(user.id),
     )
   )
 
@@ -79,5 +82,6 @@ async def get_study_plan(
   use_case: Annotated[
     GetStudyPlanUseCaseAdapter, Depends(Provide[Container.get_study_plan_use_case])
   ],
+  user: User = Depends(get_user_context),
 ) -> StudyPlanDTO:
   return await use_case.execute(id=id)

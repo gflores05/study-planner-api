@@ -27,6 +27,7 @@ from src.infrastructure.adapters.outbound.ai.ai_agent import AIAgent
 from src.infrastructure.adapters.outbound.ai.study_plan_prompt_provider import (
   StudyPlanPromptProvider,
 )
+from src.infrastructure.adapters.outbound.auth.token_service import TokenService
 from src.infrastructure.adapters.outbound.messaging.event_consumer import EventConsumer
 from src.infrastructure.adapters.outbound.messaging.event_publisher import (
   EventPublisher,
@@ -165,6 +166,9 @@ class Container(containers.DeclarativeContainer):
   create_user_use_case = providers.Factory(
     CreateUserUseCaseAdapter, user_repository=user_repository, user_lookup=user_lookup
   )
+
+  # Auth
+  token_service = providers.Factory(TokenService, settings=settings)
 
   # Event Handlers
   study_plan_requested_event_handler = providers.Callable(
