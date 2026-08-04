@@ -14,17 +14,26 @@ async def register_consumers(
   study_plan_generated_event_handler: Callable[[dict], Awaitable[None]] = Provide[
     Container.study_plan_generated_event_handler
   ],
+  study_plan_error_reported_event_handler: Callable[[dict], Awaitable[None]] = Provide[
+    Container.study_plan_error_reported_event_handler
+  ],
   generate_study_plan_command_handler: Callable[[dict], Awaitable[None]] = Provide[
     Container.generate_study_plan_command_handler
   ],
   report_study_plan_generated_command_handler: Callable[
     [dict], Awaitable[None]
   ] = Provide[Container.report_study_plan_generated_command_handler],
+  report_study_plan_error_command_handler: Callable[[dict], Awaitable[None]] = Provide[
+    Container.report_study_plan_error_command_handler
+  ],
   event_consumer: EventConsumer = Provide[Container.event_consumer],
 ) -> None:
   # Events
   event_consumer.register("StudyPlanRequestedEvent", study_plan_requested_event_handler)
   event_consumer.register("StudyPlanGeneratedEvent", study_plan_generated_event_handler)
+  event_consumer.register(
+    "StudyPlanErrorReportedEvent", study_plan_error_reported_event_handler
+  )
 
   # Commands
   event_consumer.register(
@@ -32,6 +41,9 @@ async def register_consumers(
   )
   event_consumer.register(
     "ReportStudyPlanGeneratedCommand", report_study_plan_generated_command_handler
+  )
+  event_consumer.register(
+    "ReportStudyPlanErrorCommand", report_study_plan_error_command_handler
   )
 
   await event_consumer.start()

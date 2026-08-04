@@ -17,6 +17,8 @@ class StudyPlanErrorReported(DomainEvent):
   event_name: str = field(default="StudyPlanErrorReported")
   failed_on: datetime
   study_plan_id: str
+  reported_by_user_id: str
+  error: str
 
 
 @dataclass(frozen=True, kw_only=True)

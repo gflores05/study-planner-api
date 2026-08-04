@@ -17,3 +17,6 @@ class Grade:
 
   def __int__(self):
     return self.value
+
+  def __str__(self) -> str:
+    return str(self.value)

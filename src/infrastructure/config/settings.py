@@ -15,7 +15,7 @@ class Settings(BaseSettings):
   database_echo: bool = False  # set True in development to log SQL
 
   # Google
-  google_api_key: str = "xxxx"
+  gemini_api_key: str = "xxxx"
   google_agent_model: str = "xxxx"
 
   # Exa

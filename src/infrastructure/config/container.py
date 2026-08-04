@@ -34,9 +34,11 @@ from src.infrastructure.adapters.outbound.messaging.event_publisher import (
 )
 from src.infrastructure.adapters.outbound.messaging.handlers.study_plan_command_handlers import (
   generate_study_plan_command_handler_factory,
+  report_study_plan_error_command_handler_factory,
   report_study_plan_generated_command_handler_factory,
 )
 from src.infrastructure.adapters.outbound.messaging.handlers.study_plan_event_handlers import (
+  study_plan_error_reported_event_handler_factory,
   study_plan_generated_event_handler_factory,
   study_plan_requested_event_handler_factory,
 )
@@ -106,11 +108,7 @@ class Container(containers.DeclarativeContainer):
 
   user_lookup = providers.Factory(UserLookupAdapter, db=db)
 
-  ai_agent = providers.Factory(
-    AIAgent,
-    google_agent_model=settings.provided.google_agent_model,
-    exa_api_key=settings.provided.exa_api_key,
-  )
+  ai_agent = providers.Factory(AIAgent, settings=settings)
 
   study_plan_prompt_provider = providers.Factory(StudyPlanPromptProvider)
 
@@ -179,6 +177,10 @@ class Container(containers.DeclarativeContainer):
     study_plan_generated_event_handler_factory, event_publisher=event_publisher
   )
 
+  study_plan_error_reported_event_handler = providers.Callable(
+    study_plan_error_reported_event_handler_factory, event_publisher=event_publisher
+  )
+
   # Command Handlers
   generate_study_plan_command_handler = providers.Callable(
     generate_study_plan_command_handler_factory, use_case=generate_study_plan_use_case
@@ -186,5 +188,10 @@ class Container(containers.DeclarativeContainer):
 
   report_study_plan_generated_command_handler = providers.Callable(
     report_study_plan_generated_command_handler_factory,
+    realtime_connection_manager=realtime_connection_manager,
+  )
+
+  report_study_plan_error_command_handler = providers.Callable(
+    report_study_plan_error_command_handler_factory,
     realtime_connection_manager=realtime_connection_manager,
   )

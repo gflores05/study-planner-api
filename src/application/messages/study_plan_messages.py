@@ -14,6 +14,13 @@ class StudyPlanGeneratedEventMessage(MessageEvent):
   generated_by_user_id: str
 
 
+class StudyPlanErrorReportedEventMessage(MessageEvent):
+  event_name: str = "StudyPlanErrorReportedEvent"
+  study_plan_id: str
+  reported_by_user_id: str
+  error: str
+
+
 # Commands
 class GenerateStudyPlanCommandMessage(MessageEvent):
   event_name: str = "GenerateStudyPlanCommand"
@@ -25,3 +32,10 @@ class ReportStudyPlanGeneratedCommandMessage(MessageEvent):
   event_name: str = "ReportStudyPlanGeneratedCommand"
   study_plan_id: str
   reported_by_user_id: str
+
+
+class ReportStudyPlanErrorCommandMessage(MessageEvent):
+  event_name: str = "ReportStudyPlanErrorCommand"
+  study_plan_id: str
+  reported_by_user_id: str
+  error: str

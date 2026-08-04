@@ -24,3 +24,9 @@ class StudyPlanInvalidStatusError(StudyPlanError):
     self.study_plan_id = study_plan_id
     self.current_status = current_status
     self.required_status = required_status
+
+
+class StudyPlanInternalError(StudyPlanError):
+  def __init__(self, message: str) -> None:
+    super().__init__("StudyPlanInternalError")
+    self.message = message

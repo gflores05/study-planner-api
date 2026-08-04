@@ -2,24 +2,29 @@ import time
 
 from deepagents import create_deep_agent
 from google.genai.errors import APIError
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 from src.infrastructure.adapters.outbound.ai.tools.internet_search import (
   internet_search_factory,
 )
+from src.infrastructure.config.settings import Settings
 
 
 class AIAgent:
-  def __init__(self, google_agent_model: str, exa_api_key: str) -> None:
-    self._google_agent_model = google_agent_model
-    self._exa_api_key = exa_api_key
+  def __init__(self, settings: Settings) -> None:
+    self.settings = settings
 
   async def send_content(
     self, prompt: str, system_prompt: str, max_retries=5, initial_delay=2
   ) -> str:
 
+    model = ChatGoogleGenerativeAI(
+      model=self.settings.google_agent_model, api_key=self.settings.gemini_api_key
+    )
+
     agent = create_deep_agent(
-      model=self._google_agent_model,
-      tools=[internet_search_factory(self._exa_api_key)],
+      model=model,
+      tools=[internet_search_factory(self.settings.exa_api_key)],
       system_prompt=system_prompt,
     )
 

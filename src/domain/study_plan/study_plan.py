@@ -151,9 +151,14 @@ class StudyPlan(AggregateRoot[StudyPlanId]):
 
     return Result.ok(Unit)
 
-  def report_failure(self, failed_on: datetime):
+  def report_failure(self, error: str, failed_on: datetime):
     self.modified_on = failed_on
     self.status = StudyPlanStatus.FAILED
     self.add_domain_event(
-      StudyPlanErrorReported(study_plan_id=str(self.id), failed_on=failed_on)
+      StudyPlanErrorReported(
+        study_plan_id=str(self.id),
+        failed_on=failed_on,
+        error=error,
+        reported_by_user_id=str(self.created_by_user_id),
+      )
     )

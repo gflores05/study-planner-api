@@ -33,6 +33,7 @@ from src.application.ports.outbound.repositories.sub_topic_respository import (
 )
 from src.application.ports.outbound.repositories.topic_repository import TopicRepository
 from src.application.use_cases.study_plan.errors import (
+  StudyPlanInternalError,
   StudyPlanInvalidInputError,
   StudyPlanInvalidStatusError,
   StudyPlanNotFoundError,
@@ -94,7 +95,9 @@ class GenerateStudyPlanUseCaseAdapter(UseCaseEventPublisher):
 
     prompts = await self.study_plan_prompt_provider.get_prompts(
       StudyPlanPromptParams(
-        subject=str(study_plan.subject), level=str(study_plan.level), grade=""
+        subject=str(study_plan.subject),
+        level=str(study_plan.level),
+        grade=str(study_plan.grade),
       )
     )
 
@@ -104,12 +107,16 @@ class GenerateStudyPlanUseCaseAdapter(UseCaseEventPublisher):
       response_text = await self.ai_agent.send_content(
         prompts.human, system_prompt=prompts.system
       )
-    except Exception:
-      study_plan.report_failure(failed_on=now)
 
-      return StudyPlanResponseDTO(study_plan_id=str(study_plan.id), topics=[])
+      generated_study_plan = StudyPlanAIGeneratedDTO.model_validate_json(response_text)
+    except Exception as ex:
+      study_plan.report_failure(failed_on=now, error=str(ex))
 
-    generated_study_plan = StudyPlanAIGeneratedDTO.model_validate_json(response_text)
+      await self.study_plan_repository.save(study_plan=study_plan)
+
+      await self._publish_events(study_plan)
+
+      raise StudyPlanInternalError(str(ex))
 
     topics_response: list[TopicResponseDTO] = []
 
