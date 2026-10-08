@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class AnswerDTO(BaseModel):
@@ -8,5 +8,5 @@ class AnswerDTO(BaseModel):
 
 
 class AnswerAIDTO(BaseModel):
-  t: str
-  o: str
+  t: str = Field(description="The answer text")
+  o: str = Field(description="The answer option")

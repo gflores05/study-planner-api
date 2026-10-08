@@ -1,3 +1,5 @@
+import logging
+
 from src.application.dtos.study_plan import GenerateStudyPlanDTO
 from src.application.messages.study_plan_messages import (
   GenerateStudyPlanCommandMessage,
@@ -7,9 +9,12 @@ from src.application.messages.study_plan_messages import (
 from src.application.ports.inbound.study_plan.generate_study_plan_use_case import (
   GenerateStudyPlanUseCasePort,
 )
+from src.application.use_cases.study_plan.errors import StudyPlanError
 from src.infrastructure.adapters.outbound.websockets.connection_manager import (
   RealtimeConnectionManager,
 )
+
+logger = logging.getLogger(__name__)
 
 
 async def generate_study_plan_command_handler_factory(
@@ -20,8 +25,12 @@ async def generate_study_plan_command_handler_factory(
       command = GenerateStudyPlanCommandMessage.model_validate(payload)
 
       await use_case.execute(GenerateStudyPlanDTO(study_plan_id=command.study_plan_id))
-    except Exception as ex:
-      print(ex)
+    except StudyPlanError as ex:
+      logger.error(
+        "StudyPlanError handling generate_study_plan_command_handler: %s %s",
+        ex,
+        ex.to_dict(),
+      )
 
   return handle
 

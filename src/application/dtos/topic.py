@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.application.dtos.assessment import AssessmentDTO, AssessmentResponseDTO
 from src.application.dtos.question import QuestionAIDTO
@@ -22,9 +22,11 @@ class TopicDTO(BaseModel):
 
 
 class TopicAIDTO(BaseModel):
-  t: str
-  st: list[SubTopicAIDTO]
-  qs: list[QuestionAIDTO]
+  t: str = Field(description="The topic title")
+  st: list[SubTopicAIDTO] = Field(description="List of sub-topics")
+  qs: list[QuestionAIDTO] = Field(
+    description="List of 15 questions to evaluate the topic"
+  )
 
 
 @dataclass

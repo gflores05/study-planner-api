@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class SubTopicDTO(BaseModel):
@@ -12,8 +12,8 @@ class SubTopicDTO(BaseModel):
 
 
 class SubTopicAIDTO(BaseModel):
-  t: str
-  sm: list[str]
+  t: str = Field(description="The sub-topic title")
+  sm: list[str] = Field(description="List of study materials for the sub-topic")
 
 
 @dataclass

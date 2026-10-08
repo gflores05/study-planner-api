@@ -1,5 +1,6 @@
 from dependency_injector import containers, providers
 
+from src.application.messages.domain_event_publisher import DomainEventPublisher
 from src.application.use_cases.assessment.answer_question_use_case import (
   AnswerQuestionUseCaseAdapter,
 )
@@ -23,9 +24,8 @@ from src.application.use_cases.study_plan.request_study_plan_use_case import (
 )
 from src.application.use_cases.topic.get_topic_use_case import GetTopicUseCaseAdapter
 from src.application.use_cases.user.create_user_use_case import CreateUserUseCaseAdapter
-from src.infrastructure.adapters.outbound.ai.ai_agent import AIAgent
-from src.infrastructure.adapters.outbound.ai.study_plan_prompt_provider import (
-  StudyPlanPromptProvider,
+from src.infrastructure.adapters.outbound.ai.study_plan_ai_service import (
+  StudyPlanAIServiceOpenAIAdapter,
 )
 from src.infrastructure.adapters.outbound.auth.token_service import TokenService
 from src.infrastructure.adapters.outbound.messaging.event_consumer import EventConsumer
@@ -99,23 +99,37 @@ class Container(containers.DeclarativeContainer):
   )
   event_publisher = providers.Factory(EventPublisher, message_broker=message_broker)
 
-  study_plan_repository = providers.Factory(StudyPlanRepository, db=db)
-  topic_repository = providers.Factory(TopicRepository, db=db)
-  sub_topic_repository = providers.Factory(SubTopicRepository, db=db)
-  assessment_repository = providers.Factory(AssessmentRepository, db=db)
-  question_repository = providers.Factory(QuestionRepository, db=db)
-  user_repository = providers.Factory(UserRepository, db=db)
+  domain_event_publisher = providers.Factory(
+    DomainEventPublisher, event_publisher=event_publisher
+  )
+
+  study_plan_repository = providers.Factory(
+    StudyPlanRepository, db=db, domain_event_publisher=domain_event_publisher
+  )
+  topic_repository = providers.Factory(
+    TopicRepository, db=db, domain_event_publisher=domain_event_publisher
+  )
+  sub_topic_repository = providers.Factory(
+    SubTopicRepository, db=db, domain_event_publisher=domain_event_publisher
+  )
+  assessment_repository = providers.Factory(
+    AssessmentRepository, db=db, domain_event_publisher=domain_event_publisher
+  )
+  question_repository = providers.Factory(
+    QuestionRepository, db=db, domain_event_publisher=domain_event_publisher
+  )
+  user_repository = providers.Factory(
+    UserRepository, db=db, domain_event_publisher=domain_event_publisher
+  )
 
   user_lookup = providers.Factory(UserLookupAdapter, db=db)
 
-  ai_agent = providers.Factory(AIAgent, settings=settings)
-
-  study_plan_prompt_provider = providers.Factory(StudyPlanPromptProvider)
+  study_plan_ai_service = providers.Factory(
+    StudyPlanAIServiceOpenAIAdapter, settings=settings
+  )
 
   request_study_plan_use_case = providers.Factory(
-    RequestStudyPlanUseCaseAdapter,
-    study_plan_repository=study_plan_repository,
-    event_publisher=event_publisher,
+    RequestStudyPlanUseCaseAdapter, study_plan_repository=study_plan_repository
   )
 
   generate_study_plan_use_case = providers.Factory(
@@ -125,9 +139,7 @@ class Container(containers.DeclarativeContainer):
     sub_topic_repository=sub_topic_repository,
     assessment_repository=assessment_repository,
     question_repository=question_repository,
-    event_publisher=event_publisher,
-    ai_agent=ai_agent,
-    study_plan_prompt_provider=study_plan_prompt_provider,
+    study_plan_ai_service=study_plan_ai_service,
   )
 
   get_study_plan_use_case = providers.Factory(
@@ -141,19 +153,16 @@ class Container(containers.DeclarativeContainer):
   start_assessment_use_case = providers.Factory(
     StartAssessmentUseCaseAdapter,
     assessment_repository=assessment_repository,
-    event_publisher=event_publisher,
   )
 
   answer_question_use_case = providers.Factory(
     AnswerQuestionUseCaseAdapter,
     assessment_repository=assessment_repository,
     question_repository=question_repository,
-    event_publisher=event_publisher,
   )
 
   complete_assessment_use_case = providers.Factory(
     CompleteAssessmentUseCaseAdapter,
-    event_publisher=event_publisher,
     assessment_repository=assessment_repository,
   )
 

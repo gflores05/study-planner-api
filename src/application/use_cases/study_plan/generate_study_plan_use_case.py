@@ -1,5 +1,4 @@
 import asyncio
-from dataclasses import dataclass
 from datetime import datetime
 
 from src.application.dtos.answer import AnswerAIDTO
@@ -7,18 +6,14 @@ from src.application.dtos.assessment import AssessmentResponseDTO
 from src.application.dtos.question import QuestionAIDTO, QuestionResponseDTO
 from src.application.dtos.study_plan import (
   GenerateStudyPlanDTO,
-  StudyPlanAIGeneratedDTO,
+  StudyPlanAIGenerationDTO,
   StudyPlanResponseDTO,
 )
 from src.application.dtos.sub_topic import SubTopicAIDTO, SubTopicResponseDTO
 from src.application.dtos.topic import TopicAIDTO, TopicResponseDTO
-from src.application.mappers.study_plan_mapper import (
-  map_study_plan_domain_event_to_message,
+from src.application.ports.outbound.ai.study_plan_ai_service import (
+  StudyPlanAIServicePort,
 )
-from src.application.ports.outbound.ai.ai_agent import AIAgentPort
-from src.application.ports.outbound.ai.prompt_provider import PromptProviderPort
-from src.application.ports.outbound.messaging.event_publisher import EventPublisherPort
-from src.application.ports.outbound.messaging.message import MessageEvent
 from src.application.ports.outbound.repositories.assessment_repository import (
   AssessmentRepository,
 )
@@ -28,7 +23,7 @@ from src.application.ports.outbound.repositories.question_repository import (
 from src.application.ports.outbound.repositories.study_plan_repository import (
   StudyPlanRepository,
 )
-from src.application.ports.outbound.repositories.sub_topic_respository import (
+from src.application.ports.outbound.repositories.sub_topic_repository import (
   SubTopicRepository,
 )
 from src.application.ports.outbound.repositories.topic_repository import TopicRepository
@@ -38,7 +33,6 @@ from src.application.use_cases.study_plan.errors import (
   StudyPlanInvalidStatusError,
   StudyPlanNotFoundError,
 )
-from src.application.use_cases.use_case_event_publisher import UseCaseEventPublisher
 from src.domain.answer.answer import Answer
 from src.domain.answer.value_objects.answer_option import AnswerOption
 from src.domain.assessment.assessment import AddQuestionParam
@@ -49,19 +43,11 @@ from src.domain.sub_topic.value_objects.sub_topic_title import SubTopicTitle
 from src.domain.topic.topic import AddSubTopicParams, Topic
 from src.domain.topic.value_objects.topic_title import TopicTitle
 from src.domain.value_objects.non_empty_string import NonEmptyString
-from src.shared.domain_event import DomainEvent
 from src.util.date_util import utc_now
 from src.util.result_util import traverse
 
 
-@dataclass
-class StudyPlanPromptParams:
-  subject: str
-  level: str
-  grade: str
-
-
-class GenerateStudyPlanUseCaseAdapter(UseCaseEventPublisher):
+class GenerateStudyPlanUseCaseAdapter:
   def __init__(
     self,
     study_plan_repository: StudyPlanRepository,
@@ -69,18 +55,14 @@ class GenerateStudyPlanUseCaseAdapter(UseCaseEventPublisher):
     sub_topic_repository: SubTopicRepository,
     assessment_repository: AssessmentRepository,
     question_repository: QuestionRepository,
-    event_publisher: EventPublisherPort,
-    ai_agent: AIAgentPort,
-    study_plan_prompt_provider: PromptProviderPort[StudyPlanPromptParams],
+    study_plan_ai_service: StudyPlanAIServicePort,
   ):
     self.study_plan_repository = study_plan_repository
     self.topic_repository = topic_repository
     self.sub_topic_repository = sub_topic_repository
     self.assessment_repository = assessment_repository
     self.question_repository = question_repository
-    self.event_publisher = event_publisher
-    self.ai_agent = ai_agent
-    self.study_plan_prompt_provider = study_plan_prompt_provider
+    self.study_plan_ai_service = study_plan_ai_service
 
   async def execute(self, dto: GenerateStudyPlanDTO) -> StudyPlanResponseDTO:
     study_plan = (
@@ -93,28 +75,20 @@ class GenerateStudyPlanUseCaseAdapter(UseCaseEventPublisher):
       )
     ).get_or_raise(StudyPlanNotFoundError(study_plan_id=dto.study_plan_id))
 
-    prompts = await self.study_plan_prompt_provider.get_prompts(
-      StudyPlanPromptParams(
-        subject=str(study_plan.subject),
-        level=str(study_plan.level),
-        grade=str(study_plan.grade),
-      )
-    )
-
     now = utc_now()
 
     try:
-      response_text = await self.ai_agent.send_content(
-        prompts.human, system_prompt=prompts.system
+      generated_study_plan = await self.study_plan_ai_service.generate(
+        StudyPlanAIGenerationDTO(
+          subject=str(study_plan.subject),
+          level=str(study_plan.level),
+          grade=str(study_plan.grade),
+        )
       )
-
-      generated_study_plan = StudyPlanAIGeneratedDTO.model_validate_json(response_text)
     except Exception as ex:
       study_plan.report_failure(failed_on=now, error=str(ex))
 
       await self.study_plan_repository.save(study_plan=study_plan)
-
-      await self._publish_events(study_plan)
 
       raise StudyPlanInternalError(str(ex))
 
@@ -152,16 +126,9 @@ class GenerateStudyPlanUseCaseAdapter(UseCaseEventPublisher):
 
     await self.study_plan_repository.save(study_plan=study_plan)
 
-    await self._publish_events(study_plan)
-
     return StudyPlanResponseDTO(
       study_plan_id=str(study_plan.id), topics=topics_response
     )
-
-  def _map_domain_event_to_message(
-    self, domain_event: DomainEvent
-  ) -> MessageEvent | None:
-    return map_study_plan_domain_event_to_message(domain_event)
 
   async def _add_topic_assessment(
     self, topic: Topic, ai_questions: list[QuestionAIDTO], now: datetime

@@ -1,5 +1,8 @@
 from sqlalchemy import select
 
+from src.application.ports.outbound.messaging.domain_event_publisher import (
+  DomainEventPublisherPort,
+)
 from src.domain.sub_topic.sub_topic import SubTopic
 from src.domain.sub_topic.value_objects.sub_topic_id import SubTopicId
 from src.infrastructure.adapters.outbound.persistence.mappers.sub_topic_mapper import (
@@ -14,8 +17,9 @@ from src.shared.option import Option
 
 
 class SubTopicRepository:
-  def __init__(self, db: Database):
+  def __init__(self, db: Database, domain_event_publisher: DomainEventPublisherPort):
     self._db = db
+    self._domain_event_publisher = domain_event_publisher
 
   async def get(self, id: SubTopicId) -> Option[SubTopic]:
     async with self._db.get_session() as session:
@@ -30,8 +34,11 @@ class SubTopicRepository:
       return Option.some(map_sub_topic_model_to_domain(row))
 
   async def save(self, sub_topic: SubTopic):
+    sub_topic.increment_version()
+    model = map_sub_topic_domain_to_model(sub_topic)
+
     async with self._db.get_session() as session:
-      sub_topic.increment_version()
-      model = map_sub_topic_domain_to_model(sub_topic)
       await session.merge(model)
       await session.flush()
+
+    await self._domain_event_publisher.publish_events(sub_topic)

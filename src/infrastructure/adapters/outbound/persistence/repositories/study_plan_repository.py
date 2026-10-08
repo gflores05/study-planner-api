@@ -1,6 +1,9 @@
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
+from src.application.ports.outbound.messaging.domain_event_publisher import (
+  DomainEventPublisherPort,
+)
 from src.domain.study_plan.study_plan import StudyPlan
 from src.domain.study_plan.value_objects.study_plan_id import StudyPlanId
 from src.infrastructure.adapters.outbound.persistence.mappers.study_plan_mapper import (
@@ -21,8 +24,9 @@ from src.shared.option import Option
 
 
 class StudyPlanRepository:
-  def __init__(self, db: Database):
+  def __init__(self, db: Database, domain_event_publisher: DomainEventPublisherPort):
     self._db = db
+    self._domain_event_publisher = domain_event_publisher
 
   async def get(self, id: StudyPlanId) -> Option[StudyPlan]:
     async with self._db.get_session() as session:
@@ -44,8 +48,11 @@ class StudyPlanRepository:
       return Option.some(map_study_plan_model_to_domain(row))
 
   async def save(self, study_plan: StudyPlan):
+    study_plan.increment_version()
+    model = map_study_plan_domain_to_model(study_plan)
+
     async with self._db.get_session() as session:
-      study_plan.increment_version()
-      model = map_study_plan_domain_to_model(study_plan)
       await session.merge(model)
       await session.flush()
+
+    await self._domain_event_publisher.publish_events(study_plan)

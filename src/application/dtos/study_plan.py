@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.application.dtos.topic import TopicAIDTO, TopicDTO, TopicResponseDTO
 
@@ -39,7 +39,9 @@ class GenerateStudyPlanDTO:
 
 
 class StudyPlanAIGeneratedDTO(BaseModel):
-  ts: list[TopicAIDTO]
+  ts: list[TopicAIDTO] = Field(
+    description="List of topics generated for the study plan"
+  )
 
 
 class StudyPlanDTO(BaseModel):
@@ -51,3 +53,9 @@ class StudyPlanDTO(BaseModel):
   status: StudyPlanStatusDTO
   created_on: str
   created_by_user_id: str
+
+
+class StudyPlanAIGenerationDTO(BaseModel):
+  subject: str
+  level: str
+  grade: str

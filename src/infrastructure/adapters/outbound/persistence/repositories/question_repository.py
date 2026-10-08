@@ -1,5 +1,8 @@
 from sqlalchemy import select
 
+from src.application.ports.outbound.messaging.domain_event_publisher import (
+  DomainEventPublisherPort,
+)
 from src.domain.question.question import Question
 from src.domain.question.value_objects.question_id import QuestionId
 from src.infrastructure.adapters.outbound.persistence.mappers.question_mapper import (
@@ -14,8 +17,9 @@ from src.shared.option import Option
 
 
 class QuestionRepository:
-  def __init__(self, db: Database):
+  def __init__(self, db: Database, domain_event_publisher: DomainEventPublisherPort):
     self._db = db
+    self._domain_event_publisher = domain_event_publisher
 
   async def get(self, id: QuestionId) -> Option[Question]:
     async with self._db.get_session() as session:
@@ -30,8 +34,11 @@ class QuestionRepository:
       return Option.some(map_question_model_to_domain(row))
 
   async def save(self, question: Question):
+    question.increment_version()
+    model = map_question_domain_to_model(question)
+
     async with self._db.get_session() as session:
-      question.increment_version()
-      model = map_question_domain_to_model(question)
       await session.merge(model)
       await session.flush()
+
+    await self._domain_event_publisher.publish_events(question)

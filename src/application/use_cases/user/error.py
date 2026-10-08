@@ -2,6 +2,9 @@ class UserError(Exception):
   def __init__(self, *args: object) -> None:
     super().__init__(*args)
 
+  def to_dict(self) -> dict[str, object]:
+    return self.__dict__
+
 
 class UserInvalidInputError(UserError):
   def __init__(self, value: str | None, field: str):
@@ -9,11 +12,17 @@ class UserInvalidInputError(UserError):
     self.value = value
     self.field = field
 
+  def to_dict(self) -> dict[str, object]:
+    return {"message": str(self), "value": self.value, "field": self.field}
+
 
 class UserNotFoundError(UserError):
   def __init__(self, user_id: str):
     super().__init__("UserNotFoundError")
     self.user_id = user_id
+
+  def to_dict(self) -> dict[str, object]:
+    return {"message": str(self), "user_id": self.user_id}
 
 
 class UserAlreadyExists(UserError):
@@ -21,12 +30,21 @@ class UserAlreadyExists(UserError):
     super().__init__("UserAlreadyExists")
     self.email = external_id
 
+  def to_dict(self) -> dict[str, object]:
+    return {"message": str(self), "external_id": self.email}
+
 
 class UserUnknownError(UserError):
   def __init__(self):
     super().__init__("UserUnknownError")
 
+  def to_dict(self) -> dict[str, object]:
+    return {"message": str(self)}
+
 
 class UserUnauthorized(UserError):
   def __init__(self):
     super().__init__("UserUnknownError")
+
+  def to_dict(self) -> dict[str, object]:
+    return {"message": str(self)}

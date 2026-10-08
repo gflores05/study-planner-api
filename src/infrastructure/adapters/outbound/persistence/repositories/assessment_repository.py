@@ -1,6 +1,9 @@
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
+from src.application.ports.outbound.messaging.domain_event_publisher import (
+  DomainEventPublisherPort,
+)
 from src.domain.assessment.assessment import Assessment
 from src.domain.assessment.value_objects.assessment_id import AssessmentId
 from src.infrastructure.adapters.outbound.persistence.mappers.assessment_mapper import (
@@ -15,8 +18,9 @@ from src.shared.option import Option
 
 
 class AssessmentRepository:
-  def __init__(self, db: Database):
+  def __init__(self, db: Database, domain_event_publisher: DomainEventPublisherPort):
     self._db = db
+    self._domain_event_publisher = domain_event_publisher
 
   async def get(self, id: AssessmentId) -> Option[Assessment]:
     async with self._db.get_session() as session:
@@ -33,8 +37,11 @@ class AssessmentRepository:
       return Option.some(map_assessment_model_to_domain(row))
 
   async def save(self, assessment: Assessment):
+    assessment.increment_version()
+    model = map_assessment_domain_to_model(assessment)
+
     async with self._db.get_session() as session:
-      assessment.increment_version()
-      model = map_assessment_domain_to_model(assessment)
       await session.merge(model)
       await session.flush()
+
+    await self._domain_event_publisher.publish_events(assessment)

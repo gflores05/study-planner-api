@@ -16,8 +16,14 @@ class Settings(BaseSettings):
 
   # Google
   gemini_api_key: str = "xxxx"
-  google_agent_model: str = "xxxx"
 
+  # OpenAI
+  openai_api_key: str = "xxxxx"
+
+  # AI
+  ai_agent: str = "openai"
+  ai_model: str = "gpt-4o-mini"
+  ai_temperature: float = 0.0
   # Exa
   exa_api_key: str = "xxxxx"
 
@@ -38,6 +44,8 @@ class Settings(BaseSettings):
   auth0_audience: str = "myaudience"
 
   allowed_origins: Annotated[list[str], NoDecode] = []
+
+  log_level: str = "INFO"
 
   @field_validator("allowed_origins", mode="before")
   @classmethod

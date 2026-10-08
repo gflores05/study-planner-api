@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.application.dtos.answer import AnswerAIDTO, AnswerDTO
 
@@ -16,9 +16,9 @@ class QuestionDTO(BaseModel):
 
 
 class QuestionAIDTO(BaseModel):
-  t: str
-  os: list[AnswerAIDTO]
-  a: str
+  t: str = Field(description="The question text")
+  os: list[AnswerAIDTO] = Field(description="List of 4 possible answer numbered a-d")
+  a: str = Field(description="The letter of the correct answer")
 
 
 @dataclass

@@ -2,7 +2,6 @@ from src.application.dtos.assessment import (
   AnswerQuestionRequestDTO,
   AnswerQuestionResponseDTO,
 )
-from src.application.ports.outbound.messaging.event_publisher import EventPublisherPort
 from src.application.ports.outbound.repositories.assessment_repository import (
   AssessmentRepository,
 )
@@ -17,7 +16,6 @@ from src.application.use_cases.assessment.error import (
   AssessmentQuestionNotFoundError,
   AssessmentUnknownError,
 )
-from src.application.use_cases.use_case_event_publisher import UseCaseEventPublisher
 from src.domain.answer.value_objects.answer_option import AnswerOption
 from src.domain.assessment.problems import (
   AssessmentInvalidStatusProblem,
@@ -29,14 +27,12 @@ from src.domain.question.value_objects.question_id import QuestionId
 from src.util.date_util import utc_now
 
 
-class AnswerQuestionUseCaseAdapter(UseCaseEventPublisher):
+class AnswerQuestionUseCaseAdapter:
   def __init__(
     self,
     assessment_repository: AssessmentRepository,
     question_repository: QuestionRepository,
-    event_publisher: EventPublisherPort,
   ):
-    self.event_publisher = event_publisher
     self.assessment_repository = assessment_repository
     self.question_repository = question_repository
 
@@ -70,9 +66,6 @@ class AnswerQuestionUseCaseAdapter(UseCaseEventPublisher):
 
     await self.assessment_repository.save(assessment=assessment)
     await self.question_repository.save(question=question)
-
-    await self._publish_events(assessment)
-    await self._publish_events(question)
 
     return AnswerQuestionResponseDTO(assessment_id=id, question_id=str(question.id))
 
