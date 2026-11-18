@@ -7,6 +7,7 @@ from src.infrastructure.adapters.inbound.http.middlewares.error_handler import (
 )
 from src.infrastructure.adapters.inbound.http.routers import (
   assessment_router,
+  auth_router,
   study_plan_router,
   topic_router,
   user_router,
@@ -36,6 +37,7 @@ def create_app(container: containers.DeclarativeContainer) -> FastAPI:
   app.include_router(topic_router.router)
   app.include_router(assessment_router.router)
   app.include_router(websockets_router.router)
+  app.include_router(auth_router.router)
   app.include_router(user_router.router)
 
   # Error Handler

@@ -22,8 +22,7 @@ from src.application.use_cases.assessment.get_assessment_use_case import (
 from src.application.use_cases.assessment.start_assessment_use_case import (
   StartAssessmentUseCaseAdapter,
 )
-from src.domain.user.user import User
-from src.infrastructure.adapters.outbound.auth.user_context import get_user_context
+from src.infrastructure.adapters.inbound.http.security import CurrentUser
 from src.infrastructure.config.container import Container
 
 router = APIRouter(prefix="/v1/assessment", tags=["assessment"])
@@ -36,7 +35,7 @@ async def get_assessment(
   use_case: Annotated[
     GetAssessmentUseCaseAdapter, Depends(Provide[Container.get_assessment_use_case])
   ],
-  user: User = Depends(get_user_context),
+  user: CurrentUser,
 ) -> AssessmentDTO:
   return await use_case.execute(id=id)
 
@@ -48,7 +47,7 @@ async def start_assessment(
   use_case: Annotated[
     StartAssessmentUseCaseAdapter, Depends(Provide[Container.start_assessment_use_case])
   ],
-  user: User = Depends(get_user_context),
+  user: CurrentUser,
 ) -> StartAssessmentResponseDTO:
   return await use_case.execute(id=id)
 
@@ -61,7 +60,7 @@ async def answer_question(
   use_case: Annotated[
     AnswerQuestionUseCaseAdapter, Depends(Provide[Container.answer_question_use_case])
   ],
-  user: User = Depends(get_user_context),
+  user: CurrentUser,
 ) -> AnswerQuestionResponseDTO:
   return await use_case.execute(id, body)
 
@@ -74,6 +73,6 @@ async def complete_assessment(
     CompleteAssessmentUseCaseAdapter,
     Depends(Provide[Container.complete_assessment_use_case]),
   ],
-  user: User = Depends(get_user_context),
+  user: CurrentUser,
 ) -> CompleteAssessmentResponseDTO:
   return await use_case.execute(id=id)

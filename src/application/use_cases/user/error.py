@@ -26,23 +26,35 @@ class UserNotFoundError(UserError):
 
 
 class UserAlreadyExists(UserError):
-  def __init__(self, external_id: str):
+  def __init__(self, email: str):
     super().__init__("UserAlreadyExists")
-    self.email = external_id
+    self.email = email
 
   def to_dict(self) -> dict[str, object]:
-    return {"message": str(self), "external_id": self.email}
+    return {"message": str(self), "email": self.email}
 
 
-class UserUnknownError(UserError):
+class UserInvalidCredentials(UserError):
+  """The email/password pair (or the current password) is wrong."""
+
   def __init__(self):
-    super().__init__("UserUnknownError")
+    super().__init__("UserInvalidCredentials")
 
   def to_dict(self) -> dict[str, object]:
     return {"message": str(self)}
 
 
-class UserUnauthorized(UserError):
+class UserInvalidToken(UserError):
+  """The bearer/refresh token is missing, malformed, expired or of the wrong type."""
+
+  def __init__(self):
+    super().__init__("UserInvalidToken")
+
+  def to_dict(self) -> dict[str, object]:
+    return {"message": str(self)}
+
+
+class UserUnknownError(UserError):
   def __init__(self):
     super().__init__("UserUnknownError")
 

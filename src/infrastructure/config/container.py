@@ -23,11 +23,26 @@ from src.application.use_cases.study_plan.request_study_plan_use_case import (
   RequestStudyPlanUseCaseAdapter,
 )
 from src.application.use_cases.topic.get_topic_use_case import GetTopicUseCaseAdapter
-from src.application.use_cases.user.create_user_use_case import CreateUserUseCaseAdapter
+from src.application.use_cases.user.authenticate_user_use_case import (
+  AuthenticateUserUseCaseAdapter,
+)
+from src.application.use_cases.user.change_password_use_case import (
+  ChangePasswordUseCaseAdapter,
+)
+from src.application.use_cases.user.login_use_case import LoginUseCaseAdapter
+from src.application.use_cases.user.refresh_token_use_case import (
+  RefreshTokenUseCaseAdapter,
+)
+from src.application.use_cases.user.register_user_use_case import (
+  RegisterUserUseCaseAdapter,
+)
 from src.infrastructure.adapters.outbound.ai.study_plan_ai_service import (
   StudyPlanAIServiceOpenAIAdapter,
 )
-from src.infrastructure.adapters.outbound.auth.token_service import TokenService
+from src.infrastructure.adapters.outbound.auth.jwt_token_service import JwtTokenService
+from src.infrastructure.adapters.outbound.auth.pbkdf2_password_hasher import (
+  Pbkdf2PasswordHasher,
+)
 from src.infrastructure.adapters.outbound.messaging.event_consumer import EventConsumer
 from src.infrastructure.adapters.outbound.messaging.event_publisher import (
   EventPublisher,
@@ -170,12 +185,47 @@ class Container(containers.DeclarativeContainer):
     GetTopicUseCaseAdapter, topic_repository=topic_repository
   )
 
-  create_user_use_case = providers.Factory(
-    CreateUserUseCaseAdapter, user_repository=user_repository, user_lookup=user_lookup
+  # Auth
+  password_hasher = providers.Singleton(Pbkdf2PasswordHasher)
+  token_service = providers.Singleton(
+    JwtTokenService, secret_key=settings.provided.jwt_secret_key
+  )
+  token_settings = providers.Callable(lambda s: s.token_settings, settings)
+
+  register_user_use_case = providers.Factory(
+    RegisterUserUseCaseAdapter,
+    user_repository=user_repository,
+    user_lookup=user_lookup,
+    password_hasher=password_hasher,
   )
 
-  # Auth
-  token_service = providers.Factory(TokenService, settings=settings)
+  login_use_case = providers.Factory(
+    LoginUseCaseAdapter,
+    user_repository=user_repository,
+    user_lookup=user_lookup,
+    password_hasher=password_hasher,
+    token_service=token_service,
+    token_settings=token_settings,
+  )
+
+  refresh_token_use_case = providers.Factory(
+    RefreshTokenUseCaseAdapter,
+    user_repository=user_repository,
+    token_service=token_service,
+    token_settings=token_settings,
+  )
+
+  authenticate_user_use_case = providers.Factory(
+    AuthenticateUserUseCaseAdapter,
+    user_repository=user_repository,
+    token_service=token_service,
+  )
+
+  change_password_use_case = providers.Factory(
+    ChangePasswordUseCaseAdapter,
+    user_repository=user_repository,
+    password_hasher=password_hasher,
+  )
 
   # Event Handlers
   study_plan_requested_event_handler = providers.Callable(

@@ -1,7 +1,7 @@
 from sqlalchemy import select
 
 from src.domain.user.user import User
-from src.domain.user.value_objects.external_id import ExternalId
+from src.domain.user.value_objects.email import Email
 from src.infrastructure.adapters.outbound.persistence.mappers.user_mapper import (
   map_user_model_to_domain,
 )
@@ -14,10 +14,10 @@ class UserLookupAdapter:
   def __init__(self, db: Database):
     self._db = db
 
-  async def get_by_external_id(self, id: ExternalId) -> Option[User]:
+  async def get_by_email(self, email: Email) -> Option[User]:
     async with self._db.get_session() as session:
       result = await session.execute(
-        select(UserModel).where(UserModel.external_id == str(id))
+        select(UserModel).where(UserModel.email == str(email))
       )
 
       row = result.scalar_one_or_none()

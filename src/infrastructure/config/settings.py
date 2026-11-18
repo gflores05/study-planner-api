@@ -1,8 +1,11 @@
+from datetime import timedelta
 from functools import lru_cache
 from typing import Annotated
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
+
+from src.application.dtos.auth import TokenSettings
 
 
 class Settings(BaseSettings):
@@ -38,10 +41,10 @@ class Settings(BaseSettings):
   rabbitmq_prefetch_count: int = 10
   rabbitmq_url: str = "amqp://admin:pass@localhost:5672/"
 
-  # Auth0
-  auth0_webhook_secret: str = "webhooksecret"
-  auth0_domain: str = "mydomain"
-  auth0_audience: str = "myaudience"
+  # Auth (JWT)
+  jwt_secret_key: str = "change-me-jwt-secret-key-at-least-32-bytes"
+  jwt_access_token_expire_minutes: int = 15
+  jwt_refresh_token_expire_days: int = 7
 
   allowed_origins: Annotated[list[str], NoDecode] = []
 
@@ -51,6 +54,13 @@ class Settings(BaseSettings):
   @classmethod
   def decode_origins(cls, v: str) -> list[str]:
     return [origin.strip() for origin in v.split(",")]
+
+  @property
+  def token_settings(self) -> TokenSettings:
+    return TokenSettings(
+      access_token_expires_in=timedelta(minutes=self.jwt_access_token_expire_minutes),
+      refresh_token_expires_in=timedelta(days=self.jwt_refresh_token_expire_days),
+    )
 
   @property
   def database_url(self) -> str:

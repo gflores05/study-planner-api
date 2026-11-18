@@ -26,9 +26,10 @@ from src.application.use_cases.topic.error import (
 from src.application.use_cases.user.error import (
   UserAlreadyExists,
   UserError,
+  UserInvalidCredentials,
   UserInvalidInputError,
+  UserInvalidToken,
   UserNotFoundError,
-  UserUnauthorized,
   UserUnknownError,
 )
 
@@ -59,7 +60,8 @@ _USER_STATUS_BY_ERROR: dict[type[UserError], int] = {
   UserNotFoundError: status.HTTP_404_NOT_FOUND,
   UserAlreadyExists: status.HTTP_409_CONFLICT,
   UserUnknownError: status.HTTP_500_INTERNAL_SERVER_ERROR,
-  UserUnauthorized: status.HTTP_401_UNAUTHORIZED,
+  UserInvalidCredentials: status.HTTP_401_UNAUTHORIZED,
+  UserInvalidToken: status.HTTP_401_UNAUTHORIZED,
 }
 
 

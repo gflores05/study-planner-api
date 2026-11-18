@@ -11,14 +11,14 @@ class UserId:
   value: str
 
   @staticmethod
-  def parse(value: str) -> Result["UserId", ValidationError]:
+  def parse(value: str) -> Result[UserId, ValidationError]:
     if not is_valid_uuid(value):
       return Result.fail(ValidationError("InvalidUUID", value=value))
 
     return Result.ok(UserId(value=value))
 
   @staticmethod
-  def create() -> "UserId":
+  def create() -> UserId:
     return UserId(value=str(uuid4()))
 
   def __str__(self) -> str:
